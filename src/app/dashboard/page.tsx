@@ -14,6 +14,7 @@ import {
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import dayjs from "dayjs";
+import PrivateRoute from "@/hoc/PrivateRoute";
 
 // Registrar componentes do Chart.js
 ChartJS.register(
@@ -140,74 +141,76 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <header className="bg-primary text-white p-4 rounded">
-        <h1 className="text-xl">Dashboard</h1>
-      </header>
+    <PrivateRoute>
+      <div className="min-h-screen bg-gray-100 p-6">
+        <header className="bg-primary text-white p-4 rounded">
+          <h1 className="text-xl">Dashboard</h1>
+        </header>
 
-      <div className="mt-4 flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Filtrar dados</h2>
-        <div className="space-x-2">
-          <button
-            onClick={() => handleFilterChange("today")}
-            className={`px-4 py-2 rounded ${
-              filter === "today" ? "bg-secondary text-white" : "bg-gray-200"
-            }`}
-          >
-            Hoje
-          </button>
-          <button
-            onClick={() => handleFilterChange("month")}
-            className={`px-4 py-2 rounded ${
-              filter === "month" ? "bg-secondary text-white" : "bg-gray-200"
-            }`}
-          >
-            Este Mês
-          </button>
-          <button
-            onClick={() => handleFilterChange("custom")}
-            className={`px-4 py-2 rounded ${
-              filter === "custom" ? "bg-secondary text-white" : "bg-gray-200"
-            }`}
-          >
-            Data Personalizada
-          </button>
-        </div>
-      </div>
-
-      {isCalendarOpen && (
-        <div className="mt-4 bg-white p-4 shadow rounded max-w-md">
-          <Calendar
-            selectRange={true}
-            onChange={(value) => setSelectedDate(value)}
-            value={selectedDate}
-            className="react-calendar"
-          />
-        </div>
-      )}
-
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 shadow rounded">
-          <h3 className="text-lg font-bold mb-4">Gráfico de Limpezas</h3>
-          <div className="relative h-64">
-            <Bar data={cleaningData} options={chartOptions} />
+        <div className="mt-4 flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Filtrar dados</h2>
+          <div className="space-x-2">
+            <button
+              onClick={() => handleFilterChange("today")}
+              className={`px-4 py-2 rounded ${
+                filter === "today" ? "bg-secondary text-white" : "bg-gray-200"
+              }`}
+            >
+              Hoje
+            </button>
+            <button
+              onClick={() => handleFilterChange("month")}
+              className={`px-4 py-2 rounded ${
+                filter === "month" ? "bg-secondary text-white" : "bg-gray-200"
+              }`}
+            >
+              Este Mês
+            </button>
+            <button
+              onClick={() => handleFilterChange("custom")}
+              className={`px-4 py-2 rounded ${
+                filter === "custom" ? "bg-secondary text-white" : "bg-gray-200"
+              }`}
+            >
+              Data Personalizada
+            </button>
           </div>
         </div>
 
-        <div className="bg-white p-6 shadow rounded">
-          <h3 className="text-lg font-bold mb-4">Gráfico de Valores</h3>
-          <div className="relative h-64">
-            <Bar data={amountData} options={chartOptions} />
+        {isCalendarOpen && (
+          <div className="mt-4 bg-white p-4 shadow rounded max-w-md">
+            <Calendar
+              selectRange={true}
+              onChange={(value) => setSelectedDate(value)}
+              value={selectedDate}
+              className="react-calendar"
+            />
+          </div>
+        )}
+
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white p-6 shadow rounded">
+            <h3 className="text-lg font-bold mb-4">Gráfico de Limpezas</h3>
+            <div className="relative h-64">
+              <Bar data={cleaningData} options={chartOptions} />
+            </div>
+          </div>
+
+          <div className="bg-white p-6 shadow rounded">
+            <h3 className="text-lg font-bold mb-4">Gráfico de Valores</h3>
+            <div className="relative h-64">
+              <Bar data={amountData} options={chartOptions} />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-6 bg-white p-4 shadow rounded">
-        <h3 className="text-lg font-semibold">Resumo Total</h3>
-        <p className="text-md">Total de Limpezas: {cleaningTotal}</p>
-        <p className="text-md">Valor Total: R$ {amountTotal.toFixed(2)}</p>
+        <div className="mt-6 bg-white p-4 shadow rounded">
+          <h3 className="text-lg font-semibold">Resumo Total</h3>
+          <p className="text-md">Total de Limpezas: {cleaningTotal}</p>
+          <p className="text-md">Valor Total: R$ {amountTotal.toFixed(2)}</p>
+        </div>
       </div>
-    </div>
+    </PrivateRoute>
   );
 };
 

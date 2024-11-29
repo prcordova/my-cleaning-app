@@ -1,13 +1,16 @@
 "use client";
 import Link from "next/link";
 import React from "react";
-import useAuthStore from "@/contexts/authStore";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 export const Header = () => {
   const { isLoggedIn, clearAuth } = useAuthStore();
-
+  const user = useAuthStore((state) => state.user);
+  const router = useRouter();
   const handleLogout = () => {
     clearAuth();
+    router.push("/login");
   };
 
   return (
@@ -21,7 +24,7 @@ export const Header = () => {
             Dashboard
           </Link>
 
-          {/* Exibe o botão apropriado com base no estado de login */}
+          <h1> {user?.fullName}</h1>
           {isLoggedIn ? (
             <>
               <button

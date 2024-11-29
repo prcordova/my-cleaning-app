@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { useRouter } from "next/navigation";
-import useAuthStore from "@/contexts/authStore";
+import { useAuthStore } from "@/store/authStore";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -12,7 +12,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { isLoggedIn } = useAuthStore();
   const router = useRouter();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isLoggedIn) {
       router.push("/login");
     }

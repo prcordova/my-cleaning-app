@@ -11,47 +11,9 @@ import {
 } from "@mui/material";
 import { z } from "zod";
 import cep from "cep-promise";
-import { validateCPF } from "@/utils/validateCPF";
+import { workerSchema } from "./worker-schema";
 
 // Schema de validação com Zod
-const workerSchema = z
-  .object({
-    fullName: z.string().min(3, "Nome deve ter pelo menos 3 caracteres."),
-    email: z
-      .string()
-      .nonempty("E-mail ou telefone é obrigatório.")
-      .regex(
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$|^\d{10,11}$/,
-        "Forneça um e-mail válido ou telefone no formato correto."
-      ),
-    cpf: z
-      .string()
-      .regex(/^\d{11}$/, "CPF deve conter apenas números.")
-      .refine((cpf) => validateCPF(cpf), "CPF inválido."),
-    birthDate: z.string().refine((date) => {
-      const age = new Date().getFullYear() - new Date(date).getFullYear();
-      return age >= 18;
-    }, "Você precisa ter pelo menos 18 anos."),
-    phone: z.string().nonempty("Telefone é obrigatório."),
-    address: z.object({
-      cep: z.string().regex(/^\d{8}$/, "CEP deve conter exatamente 8 números."),
-      street: z.string().nonempty("Rua é obrigatória."),
-      city: z.string().nonempty("Cidade é obrigatória."),
-      state: z.string().nonempty("Estado é obrigatório."),
-      number: z.string().nonempty("Número é obrigatório."),
-      complement: z.string().optional(),
-      reference: z.string().optional(),
-    }),
-    password: z
-      .string()
-      .min(8, "Senha deve ter pelo menos 8 caracteres.")
-      .max(32, "Senha deve ter no máximo 32 caracteres."),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "As senhas não coincidem.",
-    path: ["confirmPassword"],
-  });
 
 const RegisterWorker = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -62,37 +24,88 @@ const RegisterWorker = () => {
     phone: "",
     cpf: "",
     birthDate: "",
-    cep: "",
-    street: "",
-    city: "",
-    state: "",
-    number: "",
-    complement: "",
-    reference: "",
     password: "",
     confirmPassword: "",
+    address: {
+      cep: "",
+      street: "",
+      city: "",
+      state: "",
+      number: "",
+      complement: "",
+      reference: "",
+    },
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (name === "cep" && value.length === 8) {
-      try {
-        const address = await cep(value);
+    // Atualiza o estado do formulário primeiro
+    if (
+      [
+        "cep",
+        "street",
+        "city",
+        "state",
+        "number",
+        "complement",
+        "reference",
+      ].includes(name)
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [name]: value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
+    if (name === "cep") {
+      if (value.length === 8) {
+        try {
+          const response = await fetch(
+            `https://viacep.com.br/ws/${value}/json/`
+          );
+          if (!response.ok) {
+            throw new Error("CEP inválido ou não encontrado.");
+          }
+          const address = await response.json();
+          if (address.erro) {
+            throw new Error("CEP inválido ou não encontrado.");
+          }
+          setFormData((prev) => ({
+            ...prev,
+            address: {
+              ...prev.address,
+              street: address.logradouro || "",
+              city: address.localidade || "",
+              state: address.uf || "",
+              cep: value,
+            },
+          }));
+          setErrors((prev) => ({ ...prev, cep: "" }));
+        } catch (error) {
+          setErrors((prev) => ({
+            ...prev,
+            cep: error.message,
+          }));
+        }
+      } else {
+        // Limpa os campos de endereço se o CEP não tiver 8 dígitos
         setFormData((prev) => ({
           ...prev,
-          street: address.street || "",
-          city: address.city || "",
-          state: address.state || "",
-        }));
-        setErrors((prev) => ({ ...prev, cep: "" }));
-      } catch {
-        setErrors((prev) => ({
-          ...prev,
-          cep: "CEP inválido ou não encontrado.",
+          address: {
+            ...prev.address,
+            cep: value,
+            street: "",
+            city: "",
+            state: "",
+          },
         }));
       }
     }
@@ -111,35 +124,34 @@ const RegisterWorker = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (isLoading) return;
-
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setIsLoading(true);
     setErrors({});
+    console.log("dados", formData);
+
     try {
+      console.log("Validando dados...");
       const updatedFormData = {
         fullName: formData.fullName,
         email: formData.email,
-        phone: formData.phone,
         cpf: formData.cpf,
-        birthDate: formData.birthDate,
         phone: formData.phone,
+        birthDate: formData.birthDate,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
         address: {
-          cep: formData.cep,
-          street: formData.street,
-          city: formData.city,
-          state: formData.state,
-          number: formData.number,
-          complement: formData.complement,
-          reference: formData.reference,
+          cep: formData.address.cep,
+          street: formData.address.street,
+          city: formData.address.city,
+          state: formData.address.state,
+          number: formData.address.number,
+          complement: formData.address.complement,
+          reference: formData.address.reference,
         },
       };
-
-      workerSchema.parse(formData);
+      console.log("updatedFormData", updatedFormData);
+      workerSchema.parse(updatedFormData);
 
       const response = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
@@ -268,11 +280,16 @@ const RegisterWorker = () => {
               name="cep"
               label="CEP"
               variant="outlined"
-              value={formData.cep}
+              value={formData.address.cep}
               onChange={handleChange}
               onBlur={handleBlur}
               error={!!errors.cep}
               helperText={errors.cep}
+              inputProps={{
+                maxLength: 8,
+                inputMode: "numeric",
+                pattern: "[0-9]*",
+              }} // Garante que apenas números sejam aceitos
             />
           </Grid>
           <Grid item xs={12} md={8}>
@@ -281,7 +298,7 @@ const RegisterWorker = () => {
               name="street"
               label="Rua"
               variant="outlined"
-              value={formData.street}
+              value={formData.address.street}
               error={!!errors.street}
               helperText={errors.street}
               disabled // Mantém o campo como preenchido automaticamente
@@ -293,7 +310,7 @@ const RegisterWorker = () => {
               name="city"
               label="Cidade"
               variant="outlined"
-              value={formData.city}
+              value={formData.address.city}
               error={!!errors.city}
               helperText={errors.city}
               disabled
@@ -305,7 +322,7 @@ const RegisterWorker = () => {
               name="state"
               label="Estado"
               variant="outlined"
-              value={formData.state}
+              value={formData.address.state}
               error={!!errors.state}
               helperText={errors.state}
               disabled
@@ -317,7 +334,7 @@ const RegisterWorker = () => {
               name="number"
               label="Número"
               variant="outlined"
-              value={formData.number}
+              value={formData.address.number}
               onChange={handleChange}
               onBlur={handleBlur}
               error={!!errors.number}
@@ -330,7 +347,7 @@ const RegisterWorker = () => {
               name="complement"
               label="Complemento"
               variant="outlined"
-              value={formData.complement}
+              value={formData.address.complement}
               onChange={handleChange}
             />
           </Grid>
@@ -340,7 +357,7 @@ const RegisterWorker = () => {
               name="reference"
               label="Referência"
               variant="outlined"
-              value={formData.reference}
+              value={formData.address.reference}
               onChange={handleChange}
             />
           </Grid>

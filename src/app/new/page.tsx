@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import useAuthStore from "@/contexts/authStore";
+import { useAuthStore } from "@/store/authStore";
 import PrivateRoute from "@/hoc/PrivateRoute";
 
 const SolicitarLimpeza = () => {

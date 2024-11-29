@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import useAuthStore from "@/contexts/authStore";
 import toast from "react-hot-toast";
+import { useAuthStore } from "@/store/authStore";
 
 const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -26,15 +26,15 @@ const Login = () => {
         throw new Error("Erro ao realizar login. Verifique suas credenciais.");
       }
 
-      const { access_token, role } = await res.json();
-      setAuth(access_token, role); // Persiste os dados no Zustand
+      const data = await res.json();
+      setAuth(data);
+      console.log(data);
       toast.success("Login realizado com sucesso!");
       router.push("/dashboard");
     } catch (err: any) {
       toast.error(err.message || "Erro ao realizar login.");
     }
   };
-
   const handleRegister = async () => {
     if (password !== confirmPassword) {
       toast.error("As senhas não coincidem.");
