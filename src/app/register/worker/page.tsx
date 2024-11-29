@@ -51,6 +51,8 @@ const workerSchema = z
   });
 
 const RegisterWorker = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     fullName: "",
     emailOrPhone: "",
@@ -78,9 +80,9 @@ const RegisterWorker = () => {
         const address = await cep(value);
         setFormData((prev) => ({
           ...prev,
-          street: address.street,
-          city: address.city,
-          state: address.state,
+          street: address.street || "",
+          city: address.city || "",
+          state: address.state || "",
         }));
         setErrors((prev) => ({ ...prev, cep: "" }));
       } catch {
@@ -107,9 +109,41 @@ const RegisterWorker = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLoading) return;
+
+    setIsLoading(true);
+    setErrors({});
+    console.log("Dados do formulário antes da validação:", formData);
+    console.log("Erros de validação:", errors);
+
     try {
-      workerSchema.parse(formData);
-      alert("Formulário enviado com sucesso!");
+      // Atualize manualmente os valores no estado antes da validação
+      const updatedFormData = {
+        ...formData,
+        street: formData.street || "", // Garante que "street" tenha valor
+        city: formData.city || "", // Garante que "city" tenha valor
+        state: formData.state || "", // Garante que "state" tenha valor
+      };
+
+      // Validação com Zod
+      workerSchema.parse(updatedFormData);
+
+      const response = await fetch("http://localhost:3000/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedFormData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erro ao registrar.");
+      }
+
+      alert("Registro bem-sucedido!");
+      window.location.href = "/login";
     } catch (err) {
       if (err instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -117,7 +151,12 @@ const RegisterWorker = () => {
           fieldErrors[error.path[0]] = error.message;
         });
         setErrors(fieldErrors);
+      } else {
+        console.error(err);
+        alert(err.message || "Erro no servidor.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -220,7 +259,7 @@ const RegisterWorker = () => {
               value={formData.street}
               error={!!errors.street}
               helperText={errors.street}
-              disabled
+              disabled // Mantém o campo como preenchido automaticamente
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -280,37 +319,46 @@ const RegisterWorker = () => {
               onChange={handleChange}
             />
           </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              component="label"
-              color="primary"
+          <Grid item xs={12} md={6}>
+            <TextField
               fullWidth
-            >
-              Upload de Identidade
-              <input
-                type="file"
-                name="idPhoto"
-                accept="image/*"
-                hidden
-                onChange={handleChange}
-              />
-            </Button>
-            {errors.idPhoto && (
-              <Typography color="error" variant="body2">
-                {errors.idPhoto}
-              </Typography>
-            )}
+              name="password"
+              label="Senha"
+              type="password"
+              variant="outlined"
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={!!errors.password}
+              helperText={errors.password}
+            />
           </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              name="confirmPassword"
+              label="Confirmar Senha"
+              type="password"
+              variant="outlined"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword}
+            />
+          </Grid>
+
           <Grid item xs={12}>
             <Button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               variant="contained"
               color="primary"
               fullWidth
               sx={{ mt: 3 }}
+              disabled={isLoading} // Desabilita o botão enquanto está carregando
             >
-              Registrar
+              {isLoading ? "Registrando..." : "Registrar"}
             </Button>
           </Grid>
         </Grid>
