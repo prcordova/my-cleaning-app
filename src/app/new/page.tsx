@@ -1,10 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import useAuthStore from "@/contexts/authStore";
+import PrivateRoute from "@/hoc/PrivateRoute";
 
 const SolicitarLimpeza = () => {
   const [type, setType] = useState("");
   const [workers, setWorkers] = useState(1);
+  const router = useRouter();
+  const { isLoggedIn } = useAuthStore();
+
+  // Redireciona para login caso o usuário não esteja autenticado
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/login");
+    }
+  }, [isLoggedIn, router]);
 
   const handleSubmit = () => {
     const requestData = { type, workers };
@@ -24,39 +36,41 @@ const SolicitarLimpeza = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-2xl font-bold mb-4">Solicitar Limpeza</h1>
-      <div className="mb-4">
-        <label className="block font-bold mb-2">Tipo de Limpeza</label>
-        <select
-          className="w-full p-2 border rounded"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
+    <PrivateRoute>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <h1 className="text-2xl font-bold mb-4">Solicitar Limpeza</h1>
+        <div className="mb-4">
+          <label className="block font-bold mb-2">Tipo de Limpeza</label>
+          <select
+            className="w-full p-2 border rounded"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
+            <option value="">Selecione...</option>
+            <option value="pequeno">Pequeno</option>
+            <option value="medio">Médio</option>
+            <option value="grande">Grande</option>
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block font-bold mb-2">Quantos Trabalhadores?</label>
+          <input
+            type="number"
+            min="1"
+            max="5"
+            className="w-full p-2 border rounded"
+            value={workers}
+            onChange={(e) => setWorkers(Number(e.target.value))}
+          />
+        </div>
+        <button
+          onClick={handleSubmit}
+          className="py-2 px-4 bg-primary text-white rounded hover:bg-secondary"
         >
-          <option value="">Selecione...</option>
-          <option value="pequeno">Pequeno</option>
-          <option value="medio">Médio</option>
-          <option value="grande">Grande</option>
-        </select>
+          Solicitar
+        </button>
       </div>
-      <div className="mb-4">
-        <label className="block font-bold mb-2">Quantos Trabalhadores?</label>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          className="w-full p-2 border rounded"
-          value={workers}
-          onChange={(e) => setWorkers(Number(e.target.value))}
-        />
-      </div>
-      <button
-        onClick={handleSubmit}
-        className="py-2 px-4 bg-primary text-white rounded hover:bg-secondary"
-      >
-        Solicitar
-      </button>
-    </div>
+    </PrivateRoute>
   );
 };
 
