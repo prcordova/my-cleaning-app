@@ -10,7 +10,6 @@ import {
   Grid,
 } from "@mui/material";
 import { z } from "zod";
-import cep from "cep-promise";
 import { workerSchema } from "./worker-schema";
 
 // Schema de validação com Zod
@@ -26,6 +25,7 @@ const RegisterWorker = () => {
     birthDate: "",
     password: "",
     confirmPassword: "",
+    role: "worker",
     address: {
       cep: "",
       street: "",
@@ -140,6 +140,7 @@ const RegisterWorker = () => {
         birthDate: formData.birthDate,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
+        role: "worker",
         address: {
           cep: formData.address.cep,
           street: formData.address.street,
