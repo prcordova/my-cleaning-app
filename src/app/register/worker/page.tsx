@@ -17,7 +17,7 @@ import { validateCPF } from "@/utils/validateCPF";
 const workerSchema = z
   .object({
     fullName: z.string().min(3, "Nome deve ter pelo menos 3 caracteres."),
-    emailOrPhone: z
+    email: z
       .string()
       .nonempty("E-mail ou telefone é obrigatório.")
       .regex(
@@ -32,13 +32,16 @@ const workerSchema = z
       const age = new Date().getFullYear() - new Date(date).getFullYear();
       return age >= 18;
     }, "Você precisa ter pelo menos 18 anos."),
-    cep: z.string().regex(/^\d{8}$/, "CEP deve conter exatamente 8 números."),
-    street: z.string().nonempty("Rua é obrigatória."),
-    city: z.string().nonempty("Cidade é obrigatória."),
-    state: z.string().nonempty("Estado é obrigatório."),
-    number: z.string().nonempty("Número é obrigatório."),
-    complement: z.string().optional(),
-    reference: z.string().optional(),
+    phone: z.string().nonempty("Telefone é obrigatório."),
+    address: z.object({
+      cep: z.string().regex(/^\d{8}$/, "CEP deve conter exatamente 8 números."),
+      street: z.string().nonempty("Rua é obrigatória."),
+      city: z.string().nonempty("Cidade é obrigatória."),
+      state: z.string().nonempty("Estado é obrigatório."),
+      number: z.string().nonempty("Número é obrigatório."),
+      complement: z.string().optional(),
+      reference: z.string().optional(),
+    }),
     password: z
       .string()
       .min(8, "Senha deve ter pelo menos 8 caracteres.")
@@ -55,7 +58,8 @@ const RegisterWorker = () => {
 
   const [formData, setFormData] = useState({
     fullName: "",
-    emailOrPhone: "",
+    email: "",
+    phone: "",
     cpf: "",
     birthDate: "",
     cep: "",
@@ -114,20 +118,28 @@ const RegisterWorker = () => {
 
     setIsLoading(true);
     setErrors({});
-    console.log("Dados do formulário antes da validação:", formData);
-    console.log("Erros de validação:", errors);
-
     try {
-      // Atualize manualmente os valores no estado antes da validação
       const updatedFormData = {
-        ...formData,
-        street: formData.street || "", // Garante que "street" tenha valor
-        city: formData.city || "", // Garante que "city" tenha valor
-        state: formData.state || "", // Garante que "state" tenha valor
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        cpf: formData.cpf,
+        birthDate: formData.birthDate,
+        phone: formData.phone,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        address: {
+          cep: formData.cep,
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          number: formData.number,
+          complement: formData.complement,
+          reference: formData.reference,
+        },
       };
 
-      // Validação com Zod
-      workerSchema.parse(updatedFormData);
+      workerSchema.parse(formData);
 
       const response = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
@@ -199,14 +211,27 @@ const RegisterWorker = () => {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              name="emailOrPhone"
-              label="E-mail ou Telefone"
+              name="email"
+              label="E-mail"
               variant="outlined"
-              value={formData.emailOrPhone}
+              value={formData.email}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={!!errors.emailOrPhone}
-              helperText={errors.emailOrPhone}
+              error={!!errors.email}
+              helperText={errors.email}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              name="phone"
+              label="Telefone"
+              variant="outlined"
+              value={formData.phone}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={!!errors.phone}
+              helperText={errors.phone}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -350,13 +375,13 @@ const RegisterWorker = () => {
 
           <Grid item xs={12}>
             <Button
-              type="button"
+              type="submit"
               onClick={handleSubmit}
               variant="contained"
               color="primary"
               fullWidth
               sx={{ mt: 3 }}
-              disabled={isLoading} // Desabilita o botão enquanto está carregando
+              disabled={isLoading}
             >
               {isLoading ? "Registrando..." : "Registrar"}
             </Button>
