@@ -8,7 +8,9 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 export const Header = () => {
   const { isLoggedIn, clearAuth } = useAuthStore();
   const user = useAuthStore((state) => state.user);
+  const role = useAuthStore((state) => state.role);
   const router = useRouter();
+
   const handleLogout = () => {
     clearAuth();
     router.push("/login");
@@ -21,6 +23,8 @@ export const Header = () => {
           Cleanup Service
         </Link>
         <nav className="flex gap-4 items-center">
+          {role !== "worker" && <Link href="/jobs">Trabalhar</Link>}
+
           <h1> {user?.fullName}</h1>
 
           <Link href="/profile">
