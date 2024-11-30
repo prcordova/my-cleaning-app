@@ -23,7 +23,9 @@ export const Header = () => {
           Cleanup Service
         </Link>
         <nav className="flex gap-4 items-center">
-          {role !== "worker" && <Link href="/jobs">Trabalhar</Link>}
+          {isLoggedIn && role === "worker" && (
+            <Link href="/jobs">Trabalhar</Link>
+          )}
 
           <h1> {user?.fullName}</h1>
 
