@@ -1,25 +1,64 @@
+"use client";
+
 import Link from "next/link";
+import { useAuthStore } from "@/store/authStore";
+import { Feed } from "@/components/feed/index";
 
 export default function Home() {
+  const { isLoggedIn } = useAuthStore();
+
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center">
-      <h1 className="text-4xl font-bold">Bem-vindo ao Limpfy</h1>
-      <p className="mt-4 text-lg">
-        Serviços de limpeza rápidos e confiáveis a apenas alguns cliques de
-        você.
-      </p>
-      <div className="mt-6 flex gap-4">
-        <Link href="/login">
-          <button className="bg-primary text-white px-6 py-3 rounded-lg shadow-md">
-            Entrar
-          </button>
-        </Link>
-        <Link href="/new">
-          <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md">
-            Solicitar Limpeza
-          </button>
-        </Link>
-      </div>
+    <div className="min-h-screen flex flex-col items-center bg-gray-100">
+      <header className="w-full bg-white shadow-md p-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Limpfy</h1>
+          <nav>
+            {isLoggedIn ? (
+              <Link href="/profile" className="text-primary hover:underline">
+                Perfil
+              </Link>
+            ) : (
+              <div className="flex gap-4">
+                <Link href="/login">
+                  <button className="bg-primary text-white px-6 py-3 rounded-lg shadow-md">
+                    Entrar
+                  </button>
+                </Link>
+                <Link href="/new">
+                  <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md">
+                    Solicitar Limpeza
+                  </button>
+                </Link>
+              </div>
+            )}
+          </nav>
+        </div>
+      </header>
+      <main className="container mx-auto mt-8">
+        {isLoggedIn ? (
+          <Feed />
+        ) : (
+          <div className="text-center mt-20">
+            <h2 className="text-4xl font-bold">Bem-vindo ao Limpfy</h2>
+            <p className="mt-4 text-lg">
+              Serviços de limpeza rápidos e confiáveis a apenas alguns cliques
+              de você.
+            </p>
+            <div className="mt-6 flex gap-4 justify-center">
+              <Link href="/login">
+                <button className="bg-primary text-white px-6 py-3 rounded-lg shadow-md">
+                  Entrar
+                </button>
+              </Link>
+              <Link href="/new">
+                <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md">
+                  Solicitar Limpeza
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
