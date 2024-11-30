@@ -3,6 +3,7 @@ import Link from "next/link";
 import React from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export const Header = () => {
   const { isLoggedIn, clearAuth } = useAuthStore();
@@ -20,11 +21,12 @@ export const Header = () => {
           Cleanup Service
         </Link>
         <nav className="flex gap-4 items-center">
-          <Link href="/dashboard" className="hover:underline">
-            Dashboard
+          <h1> {user?.fullName}</h1>
+
+          <Link href="/profile">
+            <AccountCircleIcon />
           </Link>
 
-          <h1> {user?.fullName}</h1>
           {isLoggedIn ? (
             <>
               <button

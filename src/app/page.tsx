@@ -9,31 +9,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
-      <header className="w-full bg-white shadow-md p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Limpfy</h1>
-          <nav>
-            {isLoggedIn ? (
-              <Link href="/profile" className="text-primary hover:underline">
-                Perfil
-              </Link>
-            ) : (
-              <div className="flex gap-4">
-                <Link href="/login">
-                  <button className="bg-primary text-white px-6 py-3 rounded-lg shadow-md">
-                    Entrar
-                  </button>
-                </Link>
-                <Link href="/new">
-                  <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md">
-                    Solicitar Limpeza
-                  </button>
-                </Link>
-              </div>
-            )}
-          </nav>
-        </div>
-      </header>
       <main className="container mx-auto mt-8">
         {isLoggedIn ? (
           <Feed />

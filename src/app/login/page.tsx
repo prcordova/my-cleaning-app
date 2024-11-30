@@ -30,7 +30,7 @@ const Login = () => {
       setAuth(data);
       console.log(data);
       toast.success("Login realizado com sucesso!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (err: any) {
       toast.error(err.message || "Erro ao realizar login.");
     }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 const CreateJob = () => {
   const [title, setTitle] = useState("");
@@ -11,6 +11,11 @@ const CreateJob = () => {
   const [type, setType] = useState("");
   const [workers, setWorkers] = useState(1);
   const { token } = useAuthStore();
+  const router = useRouter();
+
+  if (!token) {
+    router.push("/login");
+  }
 
   const handleSubmit = async () => {
     try {

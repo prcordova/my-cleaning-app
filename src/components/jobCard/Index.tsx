@@ -13,7 +13,7 @@ interface JobCardProps {
 
 export const JobCard = ({ job }: JobCardProps) => {
   return (
-    <li className="bg-white p-4 rounded shadow-md">
+    <li className="bg-white p-4 rounded shadow-md hover:bg-gray-300 ">
       <h3 className="text-xl font-bold">{job.title}</h3>
       <p>{job.description}</p>
       <p>Status: {job.status}</p>
