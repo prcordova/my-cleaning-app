@@ -38,6 +38,11 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
   }, [job]);
 
   const handleAccept = async () => {
+    if (jobStatus === "cancelled-by-client") {
+      toast.error("Não é possível candidatar-se a um pedido cancelado");
+      return;
+    }
+
     try {
       const res = await fetch(`http://localhost:3000/jobs/${job._id}/accept`, {
         method: "POST",
@@ -119,6 +124,7 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
         <button
           onClick={handleAccept}
           className="bg-primary text-white px-4 py-2 rounded-lg mt-2"
+          disabled={jobStatus === "cancelled-by-client"}
         >
           Candidatar-se
         </button>
