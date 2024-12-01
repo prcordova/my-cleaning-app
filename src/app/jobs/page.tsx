@@ -1,13 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import { Feed } from "@/components/feed/index";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Jobs() {
   const { isLoggedIn, role } = useAuthStore();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState("all");
 
   if (role !== "worker") {
     return router.push("/");
@@ -19,18 +20,26 @@ export default function Jobs() {
         {isLoggedIn ? (
           <>
             <div className="mt-6 flex gap-4 justify-center">
-              <Link href="/login">
-                <button className="bg-primary text-white px-6 py-3 rounded-lg shadow-md">
-                  Entrar
-                </button>
-              </Link>
-              <Link href="/new">
-                <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md">
-                  Solicitar Limpeza
-                </button>
-              </Link>
+              <button
+                className={`px-4 py-2 ${
+                  activeTab === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
+                }`}
+                onClick={() => setActiveTab("all")}
+              >
+                Todos os Trabalhos
+              </button>
+              <button
+                className={`px-4 py-2 ${
+                  activeTab === "my-jobs"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => setActiveTab("my-jobs")}
+              >
+                Meus Trabalhos
+              </button>
             </div>
-            <Feed />
+            <Feed activeTab={activeTab} />
           </>
         ) : (
           <div className="text-center mt-20">

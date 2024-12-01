@@ -1,17 +1,24 @@
-// components/Feed.tsx
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { JobCard } from "@/components/jobCard/Index";
 import toast from "react-hot-toast";
 
-export const Feed = () => {
+interface FeedProps {
+  activeTab: string;
+}
+
+export const Feed = ({ activeTab }: FeedProps) => {
   const [jobs, setJobs] = useState([]);
   const { token } = useAuthStore();
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch("http://localhost:3000/jobs", {
+        const endpoint =
+          activeTab === "my-jobs"
+            ? "http://localhost:3000/jobs/my-jobs"
+            : "http://localhost:3000/jobs";
+        const res = await fetch(endpoint, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -30,11 +37,13 @@ export const Feed = () => {
     };
 
     fetchJobs();
-  }, [token]);
+  }, [activeTab, token]);
 
   return (
     <div className="mt-4">
-      <h2 className="text-2xl font-bold mb-4">Trabalhos Criados</h2>
+      <h2 className="text-2xl font-bold mb-4">
+        {activeTab === "my-jobs" ? "Meus Trabalhos" : "Todos Trabalhos"}
+      </h2>
       {jobs.length === 0 ? (
         <p>Nenhum trabalho encontrado.</p>
       ) : (

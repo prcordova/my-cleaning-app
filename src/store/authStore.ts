@@ -13,6 +13,7 @@ interface Address {
 }
 
 interface User {
+  _id?: string;
   userId: string;
   fullName: string;
   email: string;
