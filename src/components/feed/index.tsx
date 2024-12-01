@@ -32,27 +32,6 @@ export const Feed = () => {
     fetchJobs();
   }, [token]);
 
-  const handleAccept = async () => {
-    try {
-      const res = fetch("http://localhost:3000/jobs/get-jobs", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Erro ao buscar trabalhos.");
-      }
-
-      const data = await res.json();
-      setJobs(data);
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao buscar trabalhos.");
-      console.error(err.message || "Erro ao buscar trabalhos.");
-    }
-  };
-
   return (
     <div className="mt-4">
       <h2 className="text-2xl font-bold mb-4">Trabalhos Criados</h2>
@@ -61,7 +40,7 @@ export const Feed = () => {
       ) : (
         <ul className="space-y-4">
           {jobs.map((job) => (
-            <JobCard key={job._id} job={job} onClick={() => handleAccept} />
+            <JobCard key={job._id} job={job} />
           ))}
         </ul>
       )}
