@@ -8,6 +8,10 @@ export default function Orders() {
   const { isLoggedIn, role } = useAuthStore();
   const router = useRouter();
 
+  if (role === "worker") {
+    router.push("/");
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
       <main className="container mx-auto mt-2">
