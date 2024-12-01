@@ -21,12 +21,14 @@ import {
 import toast from "react-hot-toast";
 
 const priceTable = {
+  pricePerMeter: 100,
+  pricePerKilogram: 10,
   typesOfGarbage: {
     "restos de obra": 150,
     "lixo doméstico": 30,
     "lixo eletrônico": 40,
   },
-  workerMultiplier: 1.0, // 100% increase per worker
+  workerMultiplier: 0.5, // 100% increase per worker
   sizeMultiplier: 100, // Price per square meter or per kilogram
   cleaningTypes: {
     "limpeza básica": 20,
@@ -125,10 +127,10 @@ const CreateJob = () => {
   return (
     <div className="container mx-auto mt-8">
       <Card>
+        <Typography variant="h5" component="div" className="mb-8">
+          Criar Pedido
+        </Typography>
         <CardContent>
-          <Typography variant="h5" component="div" className="mb-4">
-            Criar Pedido
-          </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField

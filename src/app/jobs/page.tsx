@@ -15,7 +15,7 @@ export default function Jobs() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
-      <main className="container mx-auto mt-8">
+      <main className="container mx-auto mt-2">
         {isLoggedIn ? (
           <>
             <div className="mt-6 flex gap-4 justify-center">
