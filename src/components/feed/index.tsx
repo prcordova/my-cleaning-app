@@ -3,12 +3,27 @@ import { useAuthStore } from "@/store/authStore";
 import { JobCard } from "@/components/jobCard/Index";
 import toast from "react-hot-toast";
 
+interface Job {
+  _id: string;
+  title: string;
+  description: string;
+  status: string;
+  createdAt: string;
+  location: {
+    cep: string;
+    street: string;
+    city: string;
+    state: string;
+  };
+  workerId?: string;
+}
+
 interface FeedProps {
   activeTab: string;
 }
 
 export const Feed = ({ activeTab }: FeedProps) => {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const { token } = useAuthStore();
 
   useEffect(() => {
@@ -39,17 +54,30 @@ export const Feed = ({ activeTab }: FeedProps) => {
     fetchJobs();
   }, [activeTab, token]);
 
+  const handleAccept = (jobId: string) => {
+    setJobs((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
+  };
+
+  const handleCancel = (jobId: string) => {
+    setJobs((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
+  };
+
   return (
     <div className="mt-4">
       <h2 className="text-2xl font-bold mb-4">
-        {activeTab === "my-jobs" ? "Meus Trabalhos" : "Todos Trabalhos"}
+        {activeTab === "my-jobs" ? "Meus Trabalhos" : "Trabalhos Criados"}
       </h2>
       {jobs.length === 0 ? (
         <p>Nenhum trabalho encontrado.</p>
       ) : (
         <ul className="space-y-4">
           {jobs.map((job) => (
-            <JobCard key={job._id} job={job} />
+            <JobCard
+              key={job._id}
+              job={job}
+              onAccept={handleAccept}
+              onCancel={handleCancel}
+            />
           ))}
         </ul>
       )}

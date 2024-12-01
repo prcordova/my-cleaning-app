@@ -20,9 +20,11 @@ interface Job {
 
 interface JobCardProps {
   job: Job;
+  onAccept: (jobId: string) => void;
+  onCancel: (jobId: string) => void;
 }
 
-export const JobCard = ({ job }: JobCardProps) => {
+export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
   const { token, user } = useAuthStore();
   const [jobStatus, setJobStatus] = useState(job.status);
   const [jobWorkerId, setJobWorkerId] = useState(job.workerId);
@@ -52,6 +54,7 @@ export const JobCard = ({ job }: JobCardProps) => {
       setJobWorkerId(updatedJob.workerId);
 
       toast.success("Trabalho aceito com sucesso!");
+      onAccept(job._id);
     } catch (error: any) {
       toast.error(error.message || "Erro ao aceitar trabalho");
     }
@@ -77,6 +80,7 @@ export const JobCard = ({ job }: JobCardProps) => {
       setJobWorkerId(updatedJob.workerId);
 
       toast.success("Trabalho cancelado com sucesso!");
+      onCancel(job._id);
     } catch (error: any) {
       toast.error(error.message || "Erro ao cancelar trabalho");
     }
