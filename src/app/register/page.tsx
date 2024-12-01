@@ -8,13 +8,19 @@ import {
   Container,
   Box,
   Grid,
+  RadioGroup,
+  FormControl,
+  FormLabel,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import { z } from "zod";
-import { workerSchema } from "./worker-schema";
+import { userSchema } from "./user-schema";
+import toast from "react-hot-toast";
 
 // Schema de validação com Zod
 
-const RegisterWorker = () => {
+const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -25,7 +31,7 @@ const RegisterWorker = () => {
     birthDate: "",
     password: "",
     confirmPassword: "",
-    role: "worker",
+    role: "client",
     address: {
       cep: "",
       street: "",
@@ -38,6 +44,7 @@ const RegisterWorker = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [clientType, setClientType] = useState("client" as "client" | "worker");
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -114,7 +121,7 @@ const RegisterWorker = () => {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     try {
-      workerSchema.shape[name as keyof typeof workerSchema.shape].parse(value);
+      userSchema.shape[name as keyof typeof userSchema.shape].parse(value);
       setErrors((prev) => ({ ...prev, [name]: "" }));
     } catch (err: any) {
       setErrors((prev) => ({
@@ -140,7 +147,7 @@ const RegisterWorker = () => {
         birthDate: formData.birthDate,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
-        role: "worker",
+        role: clientType ? "client" : "worker",
         address: {
           cep: formData.address.cep,
           street: formData.address.street,
@@ -152,7 +159,7 @@ const RegisterWorker = () => {
         },
       };
       console.log("updatedFormData", updatedFormData);
-      workerSchema.parse(updatedFormData);
+      userSchema.parse(updatedFormData);
 
       const response = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
@@ -167,7 +174,8 @@ const RegisterWorker = () => {
         throw new Error(errorData.message || "Erro ao registrar.");
       }
 
-      alert("Registro bem-sucedido!");
+      toast.success("Registro bem-sucedido!");
+      toast.success("Faça login para continuar.");
       window.location.href = "/login";
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -200,12 +208,13 @@ const RegisterWorker = () => {
         }}
       >
         <Typography
+          className="mb-8"
           variant="h5"
           gutterBottom
           color="primary"
           textAlign="center"
         >
-          Registrar Trabalhador
+          Registrar Novo Usuário
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
@@ -234,6 +243,27 @@ const RegisterWorker = () => {
               helperText={errors.email}
             />
           </Grid>
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Tipo de usuário</FormLabel>
+              <RadioGroup
+                value={clientType ? "client" : "worker"}
+                onChange={(e) => setClientType(e.target.value === "client")}
+              >
+                <FormControlLabel
+                  value="client"
+                  control={<Radio />}
+                  label="Cliente"
+                />
+                <FormControlLabel
+                  value="worker"
+                  control={<Radio />}
+                  label="Trabalhador"
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
@@ -410,4 +440,4 @@ const RegisterWorker = () => {
   );
 };
 
-export default RegisterWorker;
+export default Register;

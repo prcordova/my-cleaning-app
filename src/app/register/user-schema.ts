@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { validateCPF } from "@/utils/validateCPF";
 
-export const workerSchema = z
+export const userSchema = z
   .object({
     fullName: z.string().min(3, "Nome deve ter pelo menos 3 caracteres."),
     email: z
