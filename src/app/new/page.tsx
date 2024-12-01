@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import { useUserStore } from "@/store/userStore";
 import {
   TextField,
   Button,
@@ -23,7 +22,7 @@ import toast from "react-hot-toast";
 
 const priceTable = {
   typesOfGarbage: {
-    "restos de obra": 50,
+    "restos de obra": 150,
     "lixo doméstico": 30,
     "lixo eletrônico": 40,
   },
@@ -37,9 +36,7 @@ const priceTable = {
 
 const CreateJob = () => {
   const [title, setTitle] = useState("Limpeza de calçada");
-  const [description, setDescription] = useState(
-    "Remover entulhos e restos de obra"
-  );
+  const [description, setDescription] = useState("Remover lixos e entulhos.");
   const [workerQuantity, setWorkerQuantity] = useState(1);
   const [price, setPrice] = useState(0);
   const [sizeGarbage, setSizeGarbage] = useState(1);
@@ -57,9 +54,9 @@ const CreateJob = () => {
     reference: "",
   });
   const router = useRouter();
-  const { token } = useAuthStore();
-  const { user } = useUserStore();
-
+  const { token, user } = useAuthStore();
+  console.log("endereço padrão", user?.address);
+  console.log("location", location);
   useEffect(() => {
     const calculatePrice = () => {
       let basePrice = 0;
@@ -85,7 +82,7 @@ const CreateJob = () => {
   useEffect(() => {
     if (sizeGarbage > 5 * workerQuantity) {
       setWorkerQuantity(Math.ceil(sizeGarbage / 5));
-      toast.info(
+      toast.success(
         "A quantidade de trabalhadores foi ajustada para atender ao tamanho do lixo."
       );
     }
@@ -108,7 +105,7 @@ const CreateJob = () => {
           typeOfGarbage,
           cleaningType,
           measurementUnit,
-          location: useDefaultAddress ? user.address : location,
+          location: useDefaultAddress ? user?.address : location,
         }),
       });
 
