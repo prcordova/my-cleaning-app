@@ -11,7 +11,7 @@ export const Feed = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch("http://localhost:3000/jobs/get-jobs", {
+        const res = await fetch("http://localhost:3000/jobs", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
