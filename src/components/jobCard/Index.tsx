@@ -9,6 +9,7 @@ interface Job {
   description: string;
   status: string;
   createdAt: string;
+  price: number;
   location: {
     cep: string;
     street: string;
@@ -97,7 +98,11 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
   };
 
   return (
-    <li className="bg-white p-4 rounded shadow-md hover:bg-gray-300">
+    <li
+      className={`bg-white p-4 rounded shadow-md hover:bg-gray-300 ${
+        jobStatus === "cancelled-by-client" ? "bg-gray-200" : ""
+      }`}
+    >
       <h3 className="text-xl font-bold">{job.title}</h3>
       <p>{job.description}</p>
       <p>Status: {jobStatus}</p>

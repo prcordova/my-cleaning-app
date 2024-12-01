@@ -27,7 +27,9 @@ export const Header = () => {
             <Link href="/jobs">Trabalhar</Link>
           )}
 
-          {isLoggedIn && <Link href="/orders">Meus Pedidos</Link>}
+          {isLoggedIn && role !== "worker" && (
+            <Link href="/orders">Meus Pedidos</Link>
+          )}
 
           <h1> {user?.fullName}</h1>
 
