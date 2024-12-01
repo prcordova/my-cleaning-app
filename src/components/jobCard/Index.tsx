@@ -8,6 +8,7 @@ interface Job {
   description: string;
   status: string;
   createdAt: string;
+  price: number;
   location: {
     cep: string;
     street: string;
@@ -52,6 +53,9 @@ export const JobCard = ({ job, onAccept }: JobCardProps) => {
       <p>{job.description}</p>
       <p>Status: {job.status}</p>
       <p>Criado em: {dayjs(job.createdAt).format("DD/MM/YYYY")}</p>
+      <p>
+        Preço: <span className="font-semibold">R$ {job?.price}</span>
+      </p>
       <p>
         Endereço:
         <span className="font-semibold">
