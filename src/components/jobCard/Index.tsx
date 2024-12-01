@@ -16,20 +16,25 @@ interface Job {
     state: string;
   };
   workerId?: string;
+  workerName?: string;
 }
 
 interface JobCardProps {
   job: Job;
+  onAccept?: (jobId: string) => void;
+  onCancel?: (jobId: string) => void;
 }
 
-export const JobCard = ({ job }: JobCardProps) => {
+export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
   const { token, user } = useAuthStore();
   const [jobStatus, setJobStatus] = useState(job.status);
   const [jobWorkerId, setJobWorkerId] = useState(job.workerId);
+  const [workerName, setWorkerName] = useState(job.workerName);
 
   useEffect(() => {
     setJobStatus(job.status);
     setJobWorkerId(job.workerId);
+    setWorkerName(job.workerName);
   }, [job]);
 
   const handleAccept = async () => {
@@ -50,8 +55,10 @@ export const JobCard = ({ job }: JobCardProps) => {
       const updatedJob = await res.json();
       setJobStatus(updatedJob.status);
       setJobWorkerId(updatedJob.workerId);
+      setWorkerName(updatedJob.workerName);
 
       toast.success("Trabalho aceito com sucesso!");
+      onAccept && onAccept(job._id);
     } catch (error: any) {
       toast.error(error.message || "Erro ao aceitar trabalho");
     }
@@ -75,8 +82,10 @@ export const JobCard = ({ job }: JobCardProps) => {
       const updatedJob = await res.json();
       setJobStatus(updatedJob.status);
       setJobWorkerId(updatedJob.workerId);
+      setWorkerName(updatedJob.workerName);
 
       toast.success("Trabalho cancelado com sucesso!");
+      onCancel && onCancel(job._id);
     } catch (error: any) {
       toast.error(error.message || "Erro ao cancelar trabalho");
     }
@@ -96,6 +105,9 @@ export const JobCard = ({ job }: JobCardProps) => {
           {job.location.state}
         </span>
       </p>
+      {jobStatus === "in-progress" && workerName && (
+        <p>Trabalhador: {workerName}</p>
+      )}
       {jobWorkerId === user?.userId ? (
         <button
           onClick={handleCancel}

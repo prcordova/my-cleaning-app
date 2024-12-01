@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/store/authStore";
-import { Feed } from "@/components/feed/index";
+import { JobFeed } from "@/components/jobFeed/index";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -39,7 +39,7 @@ export default function Jobs() {
                 Meus Trabalhos
               </button>
             </div>
-            <Feed activeTab={activeTab} />
+            <JobFeed activeTab={activeTab} />
           </>
         ) : (
           <div className="text-center mt-20">
