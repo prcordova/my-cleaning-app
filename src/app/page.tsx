@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useAuthStore } from "@/store/authStore";
 
 export default function Home() {
+  const { isLoggedIn } = useAuthStore();
+
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
       <main className="container mx-auto mt-8">
@@ -13,11 +16,13 @@ export default function Home() {
             você.
           </p>
           <div className="mt-6 flex gap-4 justify-center">
-            <Link href="/login">
-              <button className="bg-primary text-white px-6 py-3 rounded-lg shadow-md">
-                Entrar
-              </button>
-            </Link>
+            {!isLoggedIn && (
+              <Link href="/login">
+                <button className="bg-primary text-white px-6 py-3 rounded-lg shadow-md">
+                  Entrar
+                </button>
+              </Link>
+            )}
             <Link href="/new">
               <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md">
                 Solicitar Limpeza

@@ -22,6 +22,8 @@ import toast from "react-hot-toast";
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [documentFileName, setDocumentFileName] = useState<string>("");
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -131,6 +133,13 @@ const Register = () => {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setDocumentFile(e.target.files[0]);
+      setDocumentFileName(e.target.files[0].name);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
@@ -161,6 +170,21 @@ const Register = () => {
       console.log("updatedFormData", updatedFormData);
       userSchema.parse(updatedFormData);
 
+      // Enviar o documento para a API de OCR
+      const formDataToSend = new FormData();
+      formDataToSend.append("document", documentFile as Blob);
+      formDataToSend.append("formData", JSON.stringify(updatedFormData));
+
+      const ocrResponse = await fetch("http://localhost:3000/ocr/validate", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      if (!ocrResponse.ok) {
+        const errorData = await ocrResponse.json();
+        throw new Error(errorData.message || "Erro ao validar documento.");
+      }
+
       const response = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: {
@@ -186,7 +210,7 @@ const Register = () => {
         setErrors(fieldErrors);
       } else {
         console.error(err);
-        alert(err.message || "Erro no servidor.");
+        toast.error(err.message || "Erro ao registrar.");
       }
     } finally {
       setIsLoading(false);
@@ -420,7 +444,27 @@ const Register = () => {
               helperText={errors.confirmPassword}
             />
           </Grid>
-
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              component="label"
+              fullWidth
+              sx={{ mt: 3 }}
+            >
+              Upload Documento
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </Button>
+            {documentFileName && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Arquivo: {documentFileName}
+              </Typography>
+            )}
+          </Grid>
           <Grid item xs={12}>
             <Button
               type="submit"

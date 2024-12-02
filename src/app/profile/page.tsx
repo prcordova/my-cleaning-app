@@ -127,10 +127,10 @@ const Profile = () => {
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Data de Nascimento:{" "}
-              {new Date(user.workerDetails?.birthDate).toLocaleDateString()}
+              {new Date(user?.birthDate).toLocaleDateString()}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Empresa Associada: {user.workerDetails.companyId}
+              Empresa Associada: {user?.companyId || "Não informada"}
             </Typography>
           </CardContent>
         </Card>
