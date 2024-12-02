@@ -16,26 +16,18 @@ import WarningIcon from "@mui/icons-material/Warning";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
-  const { token, user: authUser, setAuth } = useAuthStore();
+  const { token, user: authUser } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    if (!authUser) {
-      router.push("/dashboard");
-      return;
-    }
-
     const fetchUser = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/users/${authUser.userId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await fetch(`http://localhost:3000/users/${user.userId}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!res.ok) {
           throw new Error("Erro ao buscar informações do usuário.");
