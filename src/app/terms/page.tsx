@@ -32,7 +32,11 @@ const Terms = () => {
         throw new Error("Erro ao aceitar os termos de uso.");
       }
 
-      setAuth({ ...user, hasAcceptedTerms: true });
+      setAuth({
+        ...user,
+        hasAcceptedTerms: true,
+        termsAcceptedDate: new Date().toISOString(),
+      });
     } catch (err: any) {
       console.error(err.message || "Erro ao aceitar os termos de uso.");
     }
