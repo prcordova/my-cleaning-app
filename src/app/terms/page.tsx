@@ -1,18 +1,25 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { Card, CardContent, Typography, Checkbox, Button } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 const Terms = () => {
   const [accepted, setAccepted] = useState(false);
   const { token, user, setAuth } = useAuthStore();
   const router = useRouter();
 
+  //useeffect para atualizar o estado se usuario aceitou e data da aceitação dos termos
+  useEffect(() => {
+    if (user) {
+      setAccepted(user.hasAcceptedTerms);
+    }
+  }, [user]);
+
   const handleAcceptTerms = async () => {
     try {
       const res = await fetch(
-        `http://localhost:3000/users/${user.userId}/accept-terms`,
+        `http://localhost:3000/users/${user?.userId}/accept-terms`,
         {
           method: "POST",
           headers: {
@@ -26,7 +33,6 @@ const Terms = () => {
       }
 
       setAuth({ ...user, hasAcceptedTerms: true });
-      router.push("/profile");
     } catch (err: any) {
       console.error(err.message || "Erro ao aceitar os termos de uso.");
     }
@@ -110,13 +116,29 @@ const Terms = () => {
           )}
           {user?.hasAcceptedTerms && (
             <>
-              <Typography variant="body2" color="error" className="mb-4">
-                Você já aceitou os termos de uso.
-              </Typography>
-              <p>Data do aceite : {user?.termsAcceptedDate}</p>
+              <div className="mb-4 mt-5">
+                <Typography variant="body2" color="error" className="mb-4 mt-4">
+                  Você já aceitou os termos de uso.
+                </Typography>
+                <p>
+                  Data do aceite :{" "}
+                  {user?.termsAcceptedDate
+                    ? new Date(user.termsAcceptedDate).toLocaleDateString()
+                    : "N/A"}
+                </p>
+              </div>
             </>
           )}
         </CardContent>
+        <div className="flex justify-center mt-4 mb-4">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push("/profile")}
+          >
+            Voltar
+          </Button>
+        </div>
       </Card>
     </div>
   );

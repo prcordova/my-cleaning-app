@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
 
 export default function Home() {
-  const { isLoggedIn } = useAuthStore();
+  const { isLoggedIn, role } = useAuthStore();
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
@@ -23,11 +23,13 @@ export default function Home() {
                 </button>
               </Link>
             )}
-            <Link href="/new">
-              <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md">
-                Solicitar Limpeza
-              </button>
-            </Link>
+            {role !== "worker" && (
+              <Link href="/new">
+                <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md">
+                  Solicitar Limpeza
+                </button>
+              </Link>
+            )}
           </div>
         </div>
         <section className="mt-20 flex flex-wrap items-center shadow-lg p-4 rounded-lg bg-white">
