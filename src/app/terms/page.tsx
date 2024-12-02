@@ -82,23 +82,40 @@ const Terms = () => {
             Se você tiver alguma dúvida sobre estes termos, entre em contato
             conosco através do nosso suporte.
           </Typography>
-          <div className="mb-4">
-            <Checkbox
-              checked={accepted}
-              onChange={(e) => setAccepted(e.target.checked)}
-            />
-            <Typography variant="body2" color="text.secondary" component="span">
-              Li e aceito os termos de uso
-            </Typography>
-          </div>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAcceptTerms}
-            disabled={!accepted}
-          >
-            Aceitar Termos de Uso
-          </Button>
+          {!user?.hasAcceptedTerms && (
+            <>
+              <div className="mb-4">
+                <Checkbox
+                  checked={accepted}
+                  onChange={(e) => setAccepted(e.target.checked)}
+                />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  component="span"
+                >
+                  Li e aceito os termos de uso
+                </Typography>
+              </div>
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleAcceptTerms}
+                disabled={!accepted}
+              >
+                Aceitar Termos de Uso
+              </Button>
+            </>
+          )}
+          {user?.hasAcceptedTerms && (
+            <>
+              <Typography variant="body2" color="error" className="mb-4">
+                Você já aceitou os termos de uso.
+              </Typography>
+              <p>Data do aceite : {user?.termsAcceptedDate}</p>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

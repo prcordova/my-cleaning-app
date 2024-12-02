@@ -170,16 +170,42 @@ const Profile = () => {
           <Typography variant="body2" color="text.secondary">
             Avaliação média: 4.5
           </Typography>
+          <Button
+            className="mt-2"
+            variant="contained"
+            color="primary"
+            onClick={() => router.push("/dashboard")}
+          >
+            Dashboard
+          </Button>
         </CardContent>
       </Card>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => router.push("/dashboard")}
-      >
-        Ir para o Dashboard
-      </Button>
+      <Card className="mb-4">
+        <CardContent>
+          <Typography variant="h6" component="div" className="mb-2">
+            Responsabilidade
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Aceitou os Termos de Uso:{" "}
+            {user.hasAcceptedTerms ? "Sim" : "Pendente"}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Data de Aceitação:{" "}
+            {user.termsAcceptedDate
+              ? new Date(user.termsAcceptedDate).toLocaleDateString()
+              : "N/A"}
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push("/terms")}
+            className="mt-2"
+          >
+            Ver Termos de Uso
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };

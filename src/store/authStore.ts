@@ -22,6 +22,8 @@ interface User {
   address: Address;
   workerDetails: Record<string, any>;
   hasAcceptedTerms: boolean;
+  termsAcceptedDate: string;
+
   faceVerified: boolean;
 }
 
@@ -55,6 +57,7 @@ export const useAuthStore = create<AuthState>()(
             birthDate: data.birthDate,
             address: data.address,
             workerDetails: data.workerDetails,
+            termsAcceptedDate: data.termsAcceptedDate,
             hasAcceptedTerms: data.hasAcceptedTerms,
             faceVerified: data.faceVerified,
           },
