@@ -1,4 +1,3 @@
-// authStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -22,6 +21,8 @@ interface User {
   birthDate: string;
   address: Address;
   workerDetails: Record<string, any>;
+  hasAcceptedTerms: boolean;
+  faceVerified: boolean;
 }
 
 interface AuthState {
@@ -54,6 +55,8 @@ export const useAuthStore = create<AuthState>()(
             birthDate: data.birthDate,
             address: data.address,
             workerDetails: data.workerDetails,
+            hasAcceptedTerms: data.hasAcceptedTerms,
+            faceVerified: data.faceVerified,
           },
         })),
       clearAuth: () =>

@@ -9,11 +9,14 @@ import {
   Typography,
   Grid,
   Button,
+  Alert,
+  AlertTitle,
 } from "@mui/material";
+import WarningIcon from "@mui/icons-material/Warning";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
-  const { token, user: authUser } = useAuthStore();
+  const { token, user: authUser, setAuth } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -48,12 +51,31 @@ const Profile = () => {
     fetchUser();
   }, [authUser, token, router]);
 
+  useEffect(() => {
+    setUser(authUser);
+  }, [authUser]);
+
   if (!user) {
     return <p>Carregando...</p>;
   }
 
   return (
     <div className="container mx-auto mt-8">
+      {!user.hasAcceptedTerms && (
+        <Alert severity="warning" className="mb-4" icon={<WarningIcon />}>
+          <AlertTitle>Atenção</AlertTitle>
+          Você precisa aceitar os termos de uso para poder utilizar os serviços.
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push("/terms")}
+            className="mt-2"
+          >
+            Ir para os Termos de Uso
+          </Button>
+        </Alert>
+      )}
+
       <Card className="mb-4">
         <CardContent>
           <Grid container spacing={2}>
