@@ -9,6 +9,7 @@ import {
   Typography,
   Grid,
   Button,
+  TextField,
   Alert,
   AlertTitle,
 } from "@mui/material";
@@ -16,18 +17,28 @@ import WarningIcon from "@mui/icons-material/Warning";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
-  const { token, user: authUser } = useAuthStore();
+  const [isEditing, setIsEditing] = useState(false);
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const { token, user: authUser, setAuth } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
+    if (!authUser) {
+      router.push("/dashboard");
+      return;
+    }
+
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/users/${user.userId}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `http://localhost:3000/users/${authUser.userId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!res.ok) {
           throw new Error("Erro ao buscar informações do usuário.");
@@ -46,6 +57,42 @@ const Profile = () => {
   useEffect(() => {
     setUser(authUser);
   }, [authUser]);
+
+  const handleEditProfile = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveProfile = async () => {
+    const formData = new FormData();
+    if (avatar) {
+      formData.append("avatar", avatar);
+    }
+    formData.append("address", JSON.stringify(user.address));
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/users/${authUser.userId}/update-profile`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Erro ao atualizar o perfil.");
+      }
+
+      const updatedUser = await res.json();
+      setAuth({ ...authUser, ...updatedUser });
+      setUser(updatedUser);
+      setIsEditing(false);
+    } catch (err: any) {
+      console.error(err.message || "Erro ao atualizar o perfil.");
+    }
+  };
 
   if (!user) {
     return <p>Carregando...</p>;
@@ -74,9 +121,20 @@ const Profile = () => {
             <Grid item xs={12} sm={4}>
               <Avatar
                 alt={user.fullName}
-                src={user.workerDetails?.idPhoto}
+                src={
+                  user.avatar
+                    ? `/uploads/${user.avatar}`
+                    : user.workerDetails?.idPhoto
+                }
                 sx={{ width: 100, height: 100 }}
               />
+              {isEditing && (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setAvatar(e.target.files?.[0] || null)}
+                />
+              )}
             </Grid>
             <Grid item xs={12} sm={8}>
               <Typography variant="h5" component="div">
@@ -111,24 +169,131 @@ const Profile = () => {
           <Typography variant="h6" component="div" className="mb-2">
             Endereço
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            CEP: {user.address.cep}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Rua: {user.address.street}, Número: {user.address.number}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Cidade: {user.address.city}, Estado: {user.address.state}
-          </Typography>
-          {user.address.complement && (
-            <Typography variant="body2" color="text.secondary">
-              Complemento: {user.address.complement}
-            </Typography>
-          )}
-          {user.address.reference && (
-            <Typography variant="body2" color="text.secondary">
-              Referência: {user.address.reference}
-            </Typography>
+          {isEditing ? (
+            <>
+              <TextField
+                label="CEP"
+                value={user.address.cep}
+                onChange={(e) =>
+                  setUser({
+                    ...user,
+                    address: { ...user.address, cep: e.target.value },
+                  })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Rua"
+                value={user.address.street}
+                onChange={(e) =>
+                  setUser({
+                    ...user,
+                    address: { ...user.address, street: e.target.value },
+                  })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Número"
+                value={user.address.number}
+                onChange={(e) =>
+                  setUser({
+                    ...user,
+                    address: { ...user.address, number: e.target.value },
+                  })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Cidade"
+                value={user.address.city}
+                onChange={(e) =>
+                  setUser({
+                    ...user,
+                    address: { ...user.address, city: e.target.value },
+                  })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Estado"
+                value={user.address.state}
+                onChange={(e) =>
+                  setUser({
+                    ...user,
+                    address: { ...user.address, state: e.target.value },
+                  })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Complemento"
+                value={user.address.complement}
+                onChange={(e) =>
+                  setUser({
+                    ...user,
+                    address: { ...user.address, complement: e.target.value },
+                  })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Referência"
+                value={user.address.reference}
+                onChange={(e) =>
+                  setUser({
+                    ...user,
+                    address: { ...user.address, reference: e.target.value },
+                  })
+                }
+                fullWidth
+                margin="normal"
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSaveProfile}
+                className="mt-2"
+              >
+                Salvar
+              </Button>
+            </>
+          ) : (
+            <>
+              <Typography variant="body2" color="text.secondary">
+                CEP: {user.address.cep}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Rua: {user.address.street}, Número: {user.address.number}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Cidade: {user.address.city}, Estado: {user.address.state}
+              </Typography>
+              {user.address.complement && (
+                <Typography variant="body2" color="text.secondary">
+                  Complemento: {user.address.complement}
+                </Typography>
+              )}
+              {user.address.reference && (
+                <Typography variant="body2" color="text.secondary">
+                  Referência: {user.address.reference}
+                </Typography>
+              )}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleEditProfile}
+                className="mt-2"
+              >
+                Editar Perfil
+              </Button>
+            </>
           )}
         </CardContent>
       </Card>
