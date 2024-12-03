@@ -123,7 +123,7 @@ const Profile = () => {
                 alt={user.fullName}
                 src={
                   user.avatar
-                    ? `/uploads/${user.avatar}`
+                    ? `/uploads/${user?.avatar}`
                     : user.workerDetails?.idPhoto
                 }
                 sx={{ width: 100, height: 100 }}
@@ -138,26 +138,26 @@ const Profile = () => {
             </Grid>
             <Grid item xs={12} sm={8}>
               <Typography variant="h5" component="div">
-                {user.fullName}
+                {user?.fullName}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {user.email}
+                {user?.email}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                CPF: {user.cpf}
+                CPF: {user?.cpf}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Telefone: {user.phone}
+                Telefone: {user?.phone}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Data de Nascimento:{" "}
-                {new Date(user.birthDate).toLocaleDateString()}
+                {new Date(user?.birthDate).toLocaleDateString()}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Status: {user.status}
+                Status: {user?.status}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Role: {user.role}
+                Role: {user?.role}
               </Typography>
             </Grid>
           </Grid>
@@ -173,7 +173,7 @@ const Profile = () => {
             <>
               <TextField
                 label="CEP"
-                value={user.address.cep}
+                value={user?.address?.cep}
                 onChange={(e) =>
                   setUser({
                     ...user,
@@ -185,7 +185,7 @@ const Profile = () => {
               />
               <TextField
                 label="Rua"
-                value={user.address.street}
+                value={user.address?.street}
                 onChange={(e) =>
                   setUser({
                     ...user,
@@ -197,7 +197,7 @@ const Profile = () => {
               />
               <TextField
                 label="Número"
-                value={user.address.number}
+                value={user.address?.number}
                 onChange={(e) =>
                   setUser({
                     ...user,
@@ -209,7 +209,7 @@ const Profile = () => {
               />
               <TextField
                 label="Cidade"
-                value={user.address.city}
+                value={user.address?.city}
                 onChange={(e) =>
                   setUser({
                     ...user,
@@ -221,7 +221,7 @@ const Profile = () => {
               />
               <TextField
                 label="Estado"
-                value={user.address.state}
+                value={user.address?.state}
                 onChange={(e) =>
                   setUser({
                     ...user,
@@ -233,7 +233,7 @@ const Profile = () => {
               />
               <TextField
                 label="Complemento"
-                value={user.address.complement}
+                value={user.address?.complement}
                 onChange={(e) =>
                   setUser({
                     ...user,
@@ -267,22 +267,22 @@ const Profile = () => {
           ) : (
             <>
               <Typography variant="body2" color="text.secondary">
-                CEP: {user.address.cep}
+                CEP: {user.address?.cep}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Rua: {user.address.street}, Número: {user.address.number}
+                Rua: {user.address?.street}, Número: {user.address?.number}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Cidade: {user.address.city}, Estado: {user.address.state}
+                Cidade: {user.address?.city}, Estado: {user.address?.state}
               </Typography>
-              {user.address.complement && (
+              {user.address?.complement && (
                 <Typography variant="body2" color="text.secondary">
-                  Complemento: {user.address.complement}
+                  Complemento: {user.address?.complement}
                 </Typography>
               )}
-              {user.address.reference && (
+              {user.address?.reference && (
                 <Typography variant="body2" color="text.secondary">
-                  Referência: {user.address.reference}
+                  Referência: {user.address?.reference}
                 </Typography>
               )}
               <Button
