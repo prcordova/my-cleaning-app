@@ -3,6 +3,7 @@ import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
 import { useState, useEffect } from "react";
 
+import { baseUrl } from "@/services/api";
 interface Job {
   _id: string;
   title: string;
@@ -41,16 +42,13 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
 
   const handleCancelOrder = async () => {
     try {
-      const res = await fetch(
-        `http://localhost:3000/jobs/${job._id}/cancel-order`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/cancel-order`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!res.ok) {
         const data = await res.json();
@@ -71,16 +69,13 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
 
   const handleReactivateOrder = async () => {
     try {
-      const res = await fetch(
-        `http://localhost:3000/jobs/${job._id}/reactivate`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/reactivate`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!res.ok) {
         const data = await res.json();
@@ -100,7 +95,7 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
 
   const handleEditOrder = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/jobs/${job._id}/update`, {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/update`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

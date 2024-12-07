@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
 import { useState, useEffect } from "react";
+import { baseUrl } from "@/services/api";
 
 interface Job {
   _id: string;
@@ -45,7 +46,7 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/jobs/${job._id}/accept`, {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/accept`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -72,7 +73,7 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
 
   const handleCancel = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/jobs/${job._id}/cancel`, {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/cancel`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -125,7 +126,7 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
         >
           Desistir
         </button>
-      ) : (
+      ) : jobStatus !== "in-progress" ? (
         <button
           onClick={handleAccept}
           className="bg-primary text-white px-4 py-2 rounded-lg mt-2"
@@ -133,7 +134,7 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
         >
           Candidatar-se
         </button>
-      )}
+      ) : null}
     </li>
   );
 };

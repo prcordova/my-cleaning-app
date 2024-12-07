@@ -19,6 +19,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import toast from "react-hot-toast";
+import { baseUrl } from "@/services/api";
 
 const priceTable = {
   pricePerMeter: 100,
@@ -59,6 +60,7 @@ const CreateJob = () => {
   const { token, user } = useAuthStore();
   console.log("endereço padrão", user?.address);
   console.log("location", location);
+
   useEffect(() => {
     const calculatePrice = () => {
       let basePrice = 0;
@@ -91,14 +93,16 @@ const CreateJob = () => {
   }, [sizeGarbage]);
 
   const handleSubmit = async () => {
+    console.log("id", user?.userId);
     try {
-      const res = await fetch("http://localhost:3000/jobs/create", {
+      const res = await fetch(`${baseUrl}/jobs/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+          clientId: user.userId,
           title,
           description,
           workerQuantity,

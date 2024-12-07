@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { JobCard } from "@/components/jobCard/Index";
-import toast from "react-hot-toast";
+import { baseUrl } from "@/services/api";
 
 interface Job {
   _id: string;
@@ -31,8 +31,8 @@ export const Feed = ({ activeTab }: FeedProps) => {
       try {
         const endpoint =
           activeTab === "my-jobs"
-            ? "http://localhost:3000/jobs/my-jobs"
-            : "http://localhost:3000/jobs";
+            ? `${baseUrl}/jobs/my-jobs`
+            : `${baseUrl}/jobs`;
         const res = await fetch(endpoint, {
           method: "GET",
           headers: {

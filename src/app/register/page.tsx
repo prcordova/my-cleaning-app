@@ -17,7 +17,7 @@ import {
 import { z } from "zod";
 import { userSchema } from "./user-schema";
 import toast from "react-hot-toast";
-
+import { baseUrl } from "@/services/api";
 // Schema de validação com Zod
 
 const Register = () => {
@@ -175,7 +175,7 @@ const Register = () => {
       formDataToSend.append("document", documentFile as Blob);
       formDataToSend.append("formData", JSON.stringify(updatedFormData));
 
-      const ocrResponse = await fetch("http://localhost:3000/ocr/validate", {
+      const ocrResponse = await fetch(`${baseUrl}/ocr/validate`, {
         method: "POST",
         body: formDataToSend,
       });
@@ -185,7 +185,7 @@ const Register = () => {
         throw new Error(errorData.message || "Erro ao validar documento.");
       }
 
-      const response = await fetch("http://localhost:3000/auth/register", {
+      const response = await fetch(`${baseUrl}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { Card, CardContent, Typography, Checkbox, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { baseUrl } from "@/services/api";
 
 const Terms = () => {
   const [accepted, setAccepted] = useState(false);
@@ -18,15 +19,12 @@ const Terms = () => {
 
   const handleAcceptTerms = async () => {
     try {
-      const res = await fetch(
-        `http://localhost:3000/users/${user?.userId}/accept-terms`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${baseUrl}/users/${user?.userId}/accept-terms`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!res.ok) {
         throw new Error("Erro ao aceitar os termos de uso.");

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { OrderCard } from "@/components/orderCard/index";
 import Link from "next/link";
+import { baseUrl } from "@/services/api";
 
 interface Job {
   _id: string;
@@ -29,7 +30,7 @@ export const OrderFeed = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch("http://localhost:3000/jobs/client-jobs", {
+        const res = await fetch(`${baseUrl}/jobs/client-jobs`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,

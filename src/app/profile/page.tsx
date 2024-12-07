@@ -14,7 +14,7 @@ import {
   AlertTitle,
 } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
-
+import { baseUrl } from "@/services/api";
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -30,15 +30,12 @@ const Profile = () => {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/users/${authUser.userId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await fetch(`${baseUrl}/users/${authUser.userId}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!res.ok) {
           throw new Error("Erro ao buscar informações do usuário.");
@@ -71,7 +68,7 @@ const Profile = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/users/${authUser.userId}/update-profile`,
+        `${baseUrl}/users/${authUser.userId}/update-profile`,
         {
           method: "PUT",
           headers: {
