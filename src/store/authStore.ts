@@ -12,8 +12,7 @@ interface Address {
 }
 
 interface User {
-  _id?: string;
-  userId: string;
+  _id: string; // 🔥 Agora _id é obrigatório
   fullName: string;
   email: string;
   cpf: string;
@@ -23,7 +22,6 @@ interface User {
   workerDetails: Record<string, any>;
   hasAcceptedTerms: boolean;
   termsAcceptedDate: string;
-
   faceVerified: boolean;
 }
 
@@ -45,11 +43,11 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       setAuth: (data) =>
         set(() => ({
-          token: data.access_token,
-          role: data.role,
-          isLoggedIn: true,
+          token: data.access_token, // 🔥 O access_token agora é armazenado
+          role: data.role, // 🔥 A role agora está padronizada
+          isLoggedIn: true, // 🔥 isLoggedIn é sempre true após login
           user: {
-            userId: data.userId,
+            _id: data._id, // 🔥 Agora _id é usado consistentemente
             fullName: data.fullName,
             email: data.email,
             cpf: data.cpf,

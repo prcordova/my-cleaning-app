@@ -30,7 +30,7 @@ const Profile = () => {
 
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${baseUrl}/users/${authUser.userId}`, {
+        const res = await fetch(`${baseUrl}/users/${user._id}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,7 +68,7 @@ const Profile = () => {
 
     try {
       const res = await fetch(
-        `${baseUrl}/users/${authUser.userId}/update-profile`,
+        `${baseUrl}/users/${authUser?._id}/update-profile`,
         {
           method: "PUT",
           headers: {

@@ -93,7 +93,7 @@ const CreateJob = () => {
   }, [sizeGarbage]);
 
   const handleSubmit = async () => {
-    console.log("id", user?.userId);
+    console.log("id", user?._id);
     try {
       const res = await fetch(`${baseUrl}/jobs/create`, {
         method: "POST",
@@ -102,7 +102,7 @@ const CreateJob = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          clientId: user.userId,
+          clientId: user?._id,
           title,
           description,
           workerQuantity,

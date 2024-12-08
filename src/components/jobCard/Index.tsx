@@ -119,7 +119,7 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
       {jobStatus === "in-progress" && workerName && (
         <p>Trabalhador: {workerName}</p>
       )}
-      {jobWorkerId === user?.userId ? (
+      {jobWorkerId === user?._id ? (
         <button
           onClick={handleCancel}
           className="bg-red-500 text-white px-4 py-2 rounded-lg mt-2"

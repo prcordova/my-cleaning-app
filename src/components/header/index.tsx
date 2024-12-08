@@ -1,15 +1,35 @@
 "use client";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { io } from "socket.io-client";
+import { baseUrl } from "@/services/api";
+
+const socket = io(baseUrl);
 
 export const Header = () => {
   const { isLoggedIn, clearAuth } = useAuthStore();
-  const user = useAuthStore((state) => state.user);
   const role = useAuthStore((state) => state.role);
   const router = useRouter();
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    if (user && user._id) {
+      console.log("✅ Registrando o cliente com ID:", user._id);
+      socket.emit("join", user._id);
+      socket.on("jobAccepted", (data) => {
+        alert(data.message);
+      });
+    } else {
+      console.warn("❌ user ou user._id não está definido:", user);
+    }
+
+    return () => {
+      socket.off("jobAccepted");
+    };
+  }, [user]);
 
   const handleLogout = () => {
     clearAuth();

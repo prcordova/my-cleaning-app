@@ -19,7 +19,7 @@ const Terms = () => {
 
   const handleAcceptTerms = async () => {
     try {
-      const res = await fetch(`${baseUrl}/users/${user?.userId}/accept-terms`, {
+      const res = await fetch(`${baseUrl}/users/${user?._id}/accept-terms`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
