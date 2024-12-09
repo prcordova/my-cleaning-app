@@ -16,14 +16,12 @@ export const Header = () => {
   const { user } = useAuthStore();
 
   useEffect(() => {
-    if (user && user._id) {
-      console.log("✅ Registrando o cliente com ID:", user._id);
-      socket.emit("join", user._id);
+    if (user) {
+      socket.emit("join", user._id); // Use `user._id`
+
       socket.on("jobAccepted", (data) => {
         alert(data.message);
       });
-    } else {
-      console.warn("❌ user ou user._id não está definido:", user);
     }
 
     return () => {

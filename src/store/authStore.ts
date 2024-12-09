@@ -43,9 +43,9 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       setAuth: (data) =>
         set(() => ({
-          token: data.access_token, // 🔥 O access_token agora é armazenado
-          role: data.role, // 🔥 A role agora está padronizada
-          isLoggedIn: true, // 🔥 isLoggedIn é sempre true após login
+          token: data.access_token, // 🔥 Armazena o access_token
+          role: data.role, // 🔥 Armazena a role do usuário
+          isLoggedIn: true, // 🔥 Marca o usuário como logado
           user: {
             _id: data._id, // 🔥 Agora _id é usado consistentemente
             fullName: data.fullName,
@@ -70,6 +70,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage", // Nome do armazenamento no localStorage
+      // 🔥 Aqui garantimos que o Zustand persiste o estado completo
+      partialize: (state) => ({
+        token: state.token,
+        role: state.role,
+        isLoggedIn: state.isLoggedIn,
+        user: state.user, // 🔥 Agora o user será armazenado no localStorage
+      }),
     }
   )
 );
