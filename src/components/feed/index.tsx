@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { JobCard } from "@/components/jobCard/Index";
+import { JobCard } from "@/components/jobFeed/jobCard/Index";
 import { baseUrl } from "@/services/api";
 
 interface Job {

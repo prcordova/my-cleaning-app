@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { OrderCard } from "@/components/orderCard/index";
+import { OrderCard } from "@/components/orderFeed/orderCard/index";
 import Link from "next/link";
 import { baseUrl } from "@/services/api";
 

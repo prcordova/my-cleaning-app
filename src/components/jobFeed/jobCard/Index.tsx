@@ -39,6 +39,7 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
   const [jobStatus, setJobStatus] = useState(job.status);
   const [jobWorkerId, setJobWorkerId] = useState(job.workerId);
   const [workerName, setWorkerName] = useState(job.workerName);
+  const [cleanedPhotoFile, setCleanedPhotoFile] = useState<File | null>(null);
 
   useEffect(() => {
     setJobStatus(job.status);
@@ -102,6 +103,37 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
       onCancel && onCancel(job._id);
     } catch (error: any) {
       toast.error(error.message || "Erro ao cancelar trabalho");
+    }
+  };
+
+  const handleCompleteJob = async () => {
+    if (!cleanedPhotoFile) {
+      toast.error("Por favor, selecione uma foto da área limpa.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("cleanedPhoto", cleanedPhotoFile);
+
+    try {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/complete`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Erro ao concluir trabalho");
+      }
+
+      const updatedJob = await res.json();
+      setJobStatus(updatedJob.status);
+      toast.success("Trabalho concluído com sucesso!");
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao concluir trabalho");
     }
   };
 
@@ -170,15 +202,37 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
       )}
 
       {/* Botões de ação */}
-      <div className="mt-4 flex justify-end gap-2">
-        {jobWorkerId === user?._id ? (
+      <div className="mt-4 flex flex-col sm:flex-row sm:justify-end gap-2">
+        {jobWorkerId === user?._id && jobStatus === "in-progress" && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setCleanedPhotoFile(e.target.files ? e.target.files[0] : null)
+              }
+              className="text-sm"
+            />
+            <button
+              onClick={handleCompleteJob}
+              className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-600"
+            >
+              Concluir Trabalho
+            </button>
+          </div>
+        )}
+
+        {jobWorkerId === user?._id && jobStatus === "in-progress" && (
           <button
             onClick={handleCancel}
             className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600"
           >
             Desistir
           </button>
-        ) : jobStatus !== "in-progress" ? (
+        )}
+
+        {(!jobWorkerId || jobWorkerId !== user?._id) &&
+        jobStatus !== "in-progress" ? (
           <button
             onClick={handleAccept}
             className="bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-primary-dark"

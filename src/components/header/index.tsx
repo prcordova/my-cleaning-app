@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BuildIcon from "@mui/icons-material/Build"; // Ícone para "Trabalhar"
 import ListAltIcon from "@mui/icons-material/ListAlt"; // Ícone para "Meus Pedidos"
-import { NotificationMenu } from "../notificationsMenu";
+import { NotificationMenu } from "./notificationsMenu";
 
 // Classe utilitária para ícones: largura e altura ~20px
 const iconClass = "w-5 h-5";
