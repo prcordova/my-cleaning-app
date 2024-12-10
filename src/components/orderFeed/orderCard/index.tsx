@@ -190,7 +190,7 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
   // Mensagem de tempo restante para liberar pagamento
   let timeMessage = "";
   let diffMinutes = 0;
-  if (jobStatus === "completed" && job.disputeUntil) {
+  if (jobStatus === "waiting-for-rating" && job.disputeUntil) {
     const disputeTime = dayjs(job.disputeUntil);
     const now = dayjs();
     diffMinutes = disputeTime.diff(now, "minute");
@@ -293,7 +293,7 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
             </p>
           </div>
 
-          {jobStatus === "completed" && (
+          {jobStatus === "waiting-for-rating" && (
             <div className="mt-3 text-sm text-gray-800">
               <p className="font-bold mb-1">Trabalho concluído!</p>
               <p className="mb-2">{timeMessage}</p>
@@ -334,38 +334,44 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
                     Pedir Ajuda
                   </button>
                   {/* Avaliação do trabalho */}
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <FaStar
-                          key={star}
-                          className={`cursor-pointer ${
-                            rating && rating >= star
-                              ? "text-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                          onClick={() => setRating(star)}
-                        />
-                      ))}
-                    </div>
-                    <textarea
-                      value={ratingComment}
-                      onChange={(e) => setRatingComment(e.target.value)}
-                      placeholder="Deixe um comentário (opcional)"
-                      className="w-full p-1 border rounded text-sm"
-                    />
-                    <button
-                      onClick={handleSendRating}
-                      className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
-                    >
-                      Enviar Avaliação
-                    </button>
-                  </div>
                 </div>
+              )}
+
+              {!job.isRated ? (
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <FaStar
+                        key={star}
+                        className={`cursor-pointer ${
+                          rating && rating >= star
+                            ? "text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                        onClick={() => setRating(star)}
+                      />
+                    ))}
+                  </div>
+                  <textarea
+                    value={ratingComment}
+                    onChange={(e) => setRatingComment(e.target.value)}
+                    placeholder="Deixe um comentário (opcional)"
+                    className="w-full p-1 border rounded text-sm"
+                  />
+                  <button
+                    onClick={handleSendRating}
+                    className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
+                  >
+                    Enviar Avaliação
+                  </button>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-600">
+                  Você já avaliou esse serviço.
+                </p>
               )}
             </div>
           )}
-
           {jobStatus === "dispute" && (
             <div className="mt-3 text-sm text-gray-800">
               <p className="font-bold mb-1">Disputa em andamento!</p>
@@ -384,33 +390,35 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
             </p>
           )}
 
-          {jobStatus !== "completed" && jobStatus !== "dispute" && (
-            <div className="mt-4 flex justify-end gap-2">
-              {jobStatus !== "cancelled" &&
-                jobStatus !== "cancelled-by-client" && (
+          {jobStatus !== "waiting-for-rating" &&
+            jobStatus !== "completed" &&
+            jobStatus !== "dispute" && (
+              <div className="mt-4 flex justify-end gap-2">
+                {jobStatus !== "cancelled" &&
+                  jobStatus !== "cancelled-by-client" && (
+                    <button
+                      onClick={handleCancelOrder}
+                      className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600"
+                    >
+                      Cancelar Pedido
+                    </button>
+                  )}
+                {jobStatus === "cancelled-by-client" && (
                   <button
-                    onClick={handleCancelOrder}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600"
+                    onClick={handleReactivateOrder}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
                   >
-                    Cancelar Pedido
+                    Reativar Pedido
                   </button>
                 )}
-              {jobStatus === "cancelled-by-client" && (
                 <button
-                  onClick={handleReactivateOrder}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
+                  onClick={() => setIsEditing(true)}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-600"
                 >
-                  Reativar Pedido
+                  Editar Pedido
                 </button>
-              )}
-              <button
-                onClick={() => setIsEditing(true)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-600"
-              >
-                Editar Pedido
-              </button>
-            </div>
-          )}
+              </div>
+            )}
         </div>
       )}
     </li>

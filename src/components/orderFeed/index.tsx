@@ -1,3 +1,5 @@
+// components/orderFeed/index.tsx
+
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { OrderCard } from "@/components/orderFeed/orderCard/index";
@@ -17,16 +19,23 @@ interface Job {
     city: string;
     state: string;
   };
-  workerId?: string;
+  workerId?: {
+    _id: string;
+    fullName: string;
+  };
   workerName?: string;
+  isRated?: boolean; // Incluído para rastrear se foi avaliado
 }
 
 const statusTabs = [
   { label: "Todos", value: "all" },
   { label: "Pendentes", value: "pending" },
   { label: "Em Progresso", value: "in-progress" },
+  { label: "Aguardando conclusão", value: "waiting-for-rating" },
   { label: "Concluídos", value: "completed" },
   { label: "Cancelados", value: "cancelled-by-client" },
+
+  { label: "Em disputa", value: "dispute" },
 ];
 
 export const OrderFeed = () => {
@@ -51,7 +60,7 @@ export const OrderFeed = () => {
           throw new Error("Erro ao buscar trabalhos.");
         }
 
-        const data = await res.json();
+        const data: Job[] = await res.json();
         setJobs(data);
         setFilteredJobs(data);
       } catch (err: any) {
@@ -105,6 +114,13 @@ export const OrderFeed = () => {
 
     setFilteredJobs(currentJobs);
   }, [sortOption, jobs, searchQuery, statusFilter]);
+
+  // Função para atualizar o trabalho na lista
+  const handleJobUpdate = (updatedJob: Job) => {
+    setJobs((prevJobs) =>
+      prevJobs.map((job) => (job._id === updatedJob._id ? updatedJob : job))
+    );
+  };
 
   return (
     <div className="mt-4 px-2 sm:px-0">
@@ -171,7 +187,7 @@ export const OrderFeed = () => {
       ) : (
         <ul className="space-y-4">
           {filteredJobs.map((job) => (
-            <OrderCard key={job._id} job={job} />
+            <OrderCard key={job._id} job={job} onJobUpdate={handleJobUpdate} />
           ))}
         </ul>
       )}
