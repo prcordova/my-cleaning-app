@@ -29,32 +29,30 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
   const [sortOption, setSortOption] = useState<string>("createdAtDesc");
   const { token } = useAuthStore();
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const endpoint =
-          activeTab === "my-jobs"
-            ? `${baseUrl}/jobs/my-jobs`
-            : `${baseUrl}/jobs`;
-        const res = await fetch(endpoint, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  const fetchJobs = async () => {
+    try {
+      const endpoint =
+        activeTab === "my-jobs" ? `${baseUrl}/jobs/my-jobs` : `${baseUrl}/jobs`;
+      const res = await fetch(endpoint, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        if (!res.ok) {
-          throw new Error("Erro ao buscar trabalhos.");
-        }
-
-        const data = await res.json();
-        setJobs(data);
-        setFilteredJobs(data);
-      } catch (err: any) {
-        console.error(err.message || "Erro ao buscar trabalhos.");
+      if (!res.ok) {
+        throw new Error("Erro ao buscar trabalhos.");
       }
-    };
 
+      const data = await res.json();
+      setJobs(data);
+      setFilteredJobs(data);
+    } catch (err: any) {
+      console.error(err.message || "Erro ao buscar trabalhos.");
+    }
+  };
+
+  useEffect(() => {
     fetchJobs();
   }, [activeTab, token]);
 
@@ -99,6 +97,7 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
 
   const handleAccept = (jobId: string) => {
     setJobs((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
+    fetchJobs();
   };
 
   const handleCancel = (jobId: string) => {

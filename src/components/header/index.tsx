@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { baseUrl } from "@/services/api";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -15,30 +15,52 @@ export const Header = () => {
   const role = useAuthStore((state) => state.role);
   const { user } = useAuthStore();
   const router = useRouter();
+  const { token } = useAuthStore();
 
-  // Agora as notificações serão um array de objetos: {message, jobId, workerId, read, id}
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     if (user && user._id) {
+      fetch(`${baseUrl}/users/${user._id}/notifications`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setNotifications(data.notifications); // Agora você tem as notificações persistidas
+        });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && user._id) {
       socket.emit("join", user._id);
 
-      socket.on("jobAccepted", (data) => {
-        // data: { message, jobId, workerId }
-        // Adicionamos read: false e um id único
+      // Recebemos várias notificações de diferentes tipos
+      const handleNotification = (data) => {
         const newNotif = {
           ...data,
           read: false,
-          id: Date.now(), // um id único simples baseado na timestamp
+          id: Date.now(), // ID único
         };
         setNotifications((prev) => [...prev, newNotif]);
-      });
-    }
+      };
 
-    return () => {
-      socket.off("jobAccepted");
-    };
+      // Eventos variados de notificação
+      socket.on("jobAccepted", handleNotification);
+      socket.on("profileUpdate", handleNotification);
+      socket.on("newPost", handleNotification);
+
+      // ... Se houver mais tipos de eventos, todos chamam handleNotification
+
+      return () => {
+        socket.off("jobAccepted", handleNotification);
+        socket.off("profileUpdate", handleNotification);
+        socket.off("newPost", handleNotification);
+      };
+    }
   }, [user]);
 
   const handleLogout = () => {
@@ -51,14 +73,33 @@ export const Header = () => {
   };
 
   const handleNotificationClick = (notif) => {
-    // Ao clicar na notificação, marcamos como lida
     setNotifications((prev) =>
       prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
     );
-    // E redirecionamos para o perfil do trabalhador
-    if (notif.workerId) {
-      router.push(`/worker-profile/${notif.workerId}`);
+
+    // Redirecionar com base no type da notificação
+    switch (notif.type) {
+      case "job":
+        // Vamos supor que iremos para detalhes do job
+        router.push(`/job-details/${notif.jobId}`);
+        break;
+      case "profile":
+        // Redireciona para o perfil do usuário (ou do trabalhador)
+        // Ajuste conforme sua rota real
+        // Se tiver workerId, por exemplo: `/worker-profile/${notif.workerId}`
+        if (notif.workerId) {
+          router.push(`/worker-profile/${notif.workerId}`);
+        } else {
+          router.push("/profile");
+        }
+        break;
+      case "news":
+        router.push("/news");
+        break;
+      default:
+        break;
     }
+
     setShowNotifications(false);
   };
 
@@ -68,11 +109,20 @@ export const Header = () => {
 
   const clearAllNotifications = () => {
     setNotifications([]);
+
+    if (!user) return;
+
+    fetch(`${baseUrl}/users/${user._id}/notifications`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   };
 
   return (
-    <header className="bg-primary text-white p-4 shadow-md">
-      <div className="container mx-auto flex justify-between items-center relative">
+    <header className="bg-primary text-white p-4 shadow-md relative">
+      <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="text-lg font-bold">
           Cleanup Service
         </Link>
