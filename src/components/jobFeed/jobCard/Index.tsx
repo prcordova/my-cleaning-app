@@ -4,7 +4,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useState, useEffect } from "react";
 import { baseUrl } from "@/services/api";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
-import { FaUser, FaInfoCircle } from "react-icons/fa";
+import { FaUser, FaInfoCircle, FaImage } from "react-icons/fa";
 
 interface Job {
   _id: string;
@@ -26,6 +26,9 @@ interface Job {
     fullName: string;
   };
   imageUrl?: string;
+  cleanedPhoto?: string; // Foto final do trabalho concluído
+  completedAt?: string; // Data/hora da conclusão
+  disputeUntil?: string; // Data/hora até quando o cliente pode contestar
 }
 
 interface JobCardProps {
@@ -40,6 +43,7 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
   const [jobWorkerId, setJobWorkerId] = useState(job.workerId);
   const [workerName, setWorkerName] = useState(job.workerName);
   const [cleanedPhotoFile, setCleanedPhotoFile] = useState<File | null>(null);
+  const [showImages, setShowImages] = useState(false);
 
   useEffect(() => {
     setJobStatus(job.status);
@@ -131,6 +135,9 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
 
       const updatedJob = await res.json();
       setJobStatus(updatedJob.status);
+      setJobWorkerId(updatedJob.workerId);
+      setWorkerName(updatedJob.workerName);
+
       toast.success("Trabalho concluído com sucesso!");
     } catch (error: any) {
       toast.error(error.message || "Erro ao concluir trabalho");
@@ -138,6 +145,20 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
   };
 
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
+
+  // Cálculo do tempo restante
+  let timeMessage = "";
+  if (jobStatus === "completed" && job.disputeUntil) {
+    const disputeTime = dayjs(job.disputeUntil);
+    const now = dayjs();
+    const diffMinutes = disputeTime.diff(now, "minute");
+    if (diffMinutes > 0) {
+      timeMessage = `O pagamento será liberado em aproximadamente ${diffMinutes} minutos caso o cliente não conteste.`;
+    } else {
+      timeMessage =
+        "O período de contestação expirou. O pagamento será liberado em breve.";
+    }
+  }
 
   return (
     <li
@@ -201,6 +222,32 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
         </p>
       )}
 
+      {/* Mensagem caso concluído */}
+      {jobStatus === "completed" && (
+        <div className="text-sm text-gray-800 mt-3">
+          <p className="font-bold mb-1">Trabalho concluído!</p>
+          <p className="mb-2">{timeMessage}</p>
+          {job.cleanedPhoto && (
+            <button
+              onClick={() => setShowImages((prev) => !prev)}
+              className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+            >
+              <FaImage />
+              {showImages ? "Ocultar Imagens" : "Ver Imagens"}
+            </button>
+          )}
+          {showImages && job.cleanedPhoto && (
+            <div className="mt-2">
+              <img
+                src={`/${job.cleanedPhoto}`}
+                alt="Área limpa"
+                className="rounded w-full max-w-[200px] h-auto"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Botões de ação */}
       <div className="mt-4 flex flex-col sm:flex-row sm:justify-end gap-2">
         {jobWorkerId === user?._id && jobStatus === "in-progress" && (
@@ -232,7 +279,8 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
         )}
 
         {(!jobWorkerId || jobWorkerId !== user?._id) &&
-        jobStatus !== "in-progress" ? (
+        jobStatus !== "in-progress" &&
+        jobStatus !== "completed" ? (
           <button
             onClick={handleAccept}
             className="bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-primary-dark"

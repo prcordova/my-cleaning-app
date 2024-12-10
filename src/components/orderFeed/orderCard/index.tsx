@@ -4,7 +4,13 @@ import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
 import { baseUrl } from "@/services/api";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
-import { FaInfoCircle } from "react-icons/fa";
+import {
+  FaInfoCircle,
+  FaImage,
+  FaBalanceScale,
+  FaLifeRing,
+  FaStar,
+} from "react-icons/fa";
 
 interface Job {
   _id: string;
@@ -13,6 +19,7 @@ interface Job {
   description: string;
   status: string;
   createdAt: string;
+  isRated?: boolean;
   location: {
     cep: string;
     street: string;
@@ -24,6 +31,9 @@ interface Job {
     fullName: string;
   };
   imageUrl?: string;
+  cleanedPhoto?: string;
+  completedAt?: string;
+  disputeUntil?: string;
 }
 
 interface OrderCardProps {
@@ -36,8 +46,13 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
   const [jobStatus, setJobStatus] = useState(job.status);
   const [isEditing, setIsEditing] = useState(false);
   const [editedJob, setEditedJob] = useState(job);
+  const [showImages, setShowImages] = useState(false);
 
-  const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg"; // Ajuste o caminho se necessário
+  // Estado para avaliação
+  const [rating, setRating] = useState<number | null>(null);
+  const [ratingComment, setRatingComment] = useState("");
+
+  const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 
   const handleCancelOrder = async () => {
     try {
@@ -112,6 +127,80 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
       toast.error(error.message || "Erro ao editar pedido");
     }
   };
+
+  const handleOpenDispute = async () => {
+    try {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/open-dispute`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reason: "Qualidade do serviço insatisfatória" }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Erro ao abrir disputa");
+      }
+
+      const updatedJob = await res.json();
+      setJobStatus(updatedJob.status);
+      toast.success(
+        "Disputa aberta com sucesso! O suporte foi notificado e irá analisar."
+      );
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao abrir disputa");
+    }
+  };
+
+  const handleRequestHelp = () => {
+    // Lógica para pedir ajuda ao suporte após expirar o prazo de disputa
+    // Pode abrir um modal ou redirecionar para um chat com suporte
+    toast("Solicitação de ajuda enviada ao suporte.", { icon: "ℹ️" });
+  };
+
+  const handleSendRating = async () => {
+    if (rating == null) {
+      toast.error("Por favor, selecione uma nota antes de enviar.");
+      return;
+    }
+    // Endpoint para enviar avaliação ao backend
+    try {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/rate`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rating, comment: ratingComment }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Erro ao enviar avaliação");
+      }
+
+      toast.success("Avaliação enviada com sucesso!");
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao enviar avaliação");
+    }
+  };
+
+  // Mensagem de tempo restante para liberar pagamento
+  let timeMessage = "";
+  let diffMinutes = 0;
+  if (jobStatus === "completed" && job.disputeUntil) {
+    const disputeTime = dayjs(job.disputeUntil);
+    const now = dayjs();
+    diffMinutes = disputeTime.diff(now, "minute");
+    if (diffMinutes > 0) {
+      timeMessage = `Você tem ${diffMinutes} minutos para contestar o trabalho antes da liberação do pagamento.`;
+    } else {
+      timeMessage =
+        "O período de contestação expirou. O pagamento será liberado em breve.";
+    }
+  }
 
   return (
     <li
@@ -204,7 +293,90 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
             </p>
           </div>
 
-          {/* Trabalhador */}
+          {jobStatus === "completed" && (
+            <div className="mt-3 text-sm text-gray-800">
+              <p className="font-bold mb-1">Trabalho concluído!</p>
+              <p className="mb-2">{timeMessage}</p>
+              {job.cleanedPhoto && (
+                <button
+                  onClick={() => setShowImages((prev) => !prev)}
+                  className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                >
+                  <FaImage />
+                  {showImages ? "Ocultar Imagens" : "Ver Imagens"}
+                </button>
+              )}
+              {showImages && job.cleanedPhoto && (
+                <div className="mt-2">
+                  <img
+                    src={`/${job.cleanedPhoto}`}
+                    alt="Área limpa"
+                    className="rounded w-full max-w-[200px] h-auto"
+                  />
+                </div>
+              )}
+              {diffMinutes > 0 ? (
+                <button
+                  onClick={handleOpenDispute}
+                  className="flex items-center gap-1 text-red-600 hover:underline text-sm mt-2"
+                >
+                  <FaBalanceScale />
+                  Abrir Disputa
+                </button>
+              ) : (
+                <div className="mt-2 flex flex-col sm:flex-row items-start gap-2">
+                  {/* Após expirar prazo, pode pedir ajuda ao suporte */}
+                  <button
+                    onClick={handleRequestHelp}
+                    className="flex items-center gap-1 text-purple-600 hover:underline text-sm"
+                  >
+                    <FaLifeRing />
+                    Pedir Ajuda
+                  </button>
+                  {/* Avaliação do trabalho */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <FaStar
+                          key={star}
+                          className={`cursor-pointer ${
+                            rating && rating >= star
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                          onClick={() => setRating(star)}
+                        />
+                      ))}
+                    </div>
+                    <textarea
+                      value={ratingComment}
+                      onChange={(e) => setRatingComment(e.target.value)}
+                      placeholder="Deixe um comentário (opcional)"
+                      className="w-full p-1 border rounded text-sm"
+                    />
+                    <button
+                      onClick={handleSendRating}
+                      className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
+                    >
+                      Enviar Avaliação
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {jobStatus === "dispute" && (
+            <div className="mt-3 text-sm text-gray-800">
+              <p className="font-bold mb-1">Disputa em andamento!</p>
+              <p>
+                O suporte foi notificado e está analisando o caso. Por favor,
+                aguarde enquanto um administrador entra em contato ou toma uma
+                decisão.
+              </p>
+            </div>
+          )}
+
           {jobStatus === "in-progress" && job.workerId && (
             <p className="text-sm text-gray-800 mt-2">
               <span className="font-bold">Trabalhador:</span>{" "}
@@ -212,32 +384,33 @@ export const OrderCard = ({ job, onCancel }: OrderCardProps) => {
             </p>
           )}
 
-          {/* Botões de ação */}
-          <div className="mt-4 flex justify-end gap-2">
-            {jobStatus !== "cancelled" &&
-              jobStatus !== "cancelled-by-client" && (
+          {jobStatus !== "completed" && jobStatus !== "dispute" && (
+            <div className="mt-4 flex justify-end gap-2">
+              {jobStatus !== "cancelled" &&
+                jobStatus !== "cancelled-by-client" && (
+                  <button
+                    onClick={handleCancelOrder}
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600"
+                  >
+                    Cancelar Pedido
+                  </button>
+                )}
+              {jobStatus === "cancelled-by-client" && (
                 <button
-                  onClick={handleCancelOrder}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600"
+                  onClick={handleReactivateOrder}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
                 >
-                  Cancelar Pedido
+                  Reativar Pedido
                 </button>
               )}
-            {jobStatus === "cancelled-by-client" && (
               <button
-                onClick={handleReactivateOrder}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
+                onClick={() => setIsEditing(true)}
+                className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-600"
               >
-                Reativar Pedido
+                Editar Pedido
               </button>
-            )}
-            <button
-              onClick={() => setIsEditing(true)}
-              className="bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-600"
-            >
-              Editar Pedido
-            </button>
-          </div>
+            </div>
+          )}
         </div>
       )}
     </li>
