@@ -1,18 +1,10 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 
 export default function Home() {
-  const token = useAuthStore((state) => state.token);
-
   const { isLoggedIn, role } = useAuthStore();
-  const router = useRouter();
-
-  if (!isLoggedIn || !token) {
-    router.push("/login");
-  }
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-100">
