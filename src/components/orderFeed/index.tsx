@@ -64,16 +64,15 @@ export const OrderFeed = () => {
     }
   }, [token]);
 
-  // Aplica filtros de busca e status
   useEffect(() => {
     let currentJobs = [...jobs];
 
-    // Filtro por status (se não for "all")
+    // Filtro por status
     if (statusFilter !== "all") {
       currentJobs = currentJobs.filter((job) => job.status === statusFilter);
     }
 
-    // Filtro por busca no título
+    // Filtro por busca
     if (searchQuery.trim() !== "") {
       currentJobs = currentJobs.filter((job) =>
         job.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -100,7 +99,6 @@ export const OrderFeed = () => {
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         break;
-
       default:
         break;
     }
@@ -109,41 +107,40 @@ export const OrderFeed = () => {
   }, [sortOption, jobs, searchQuery, statusFilter]);
 
   return (
-    <div className="mt-4">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-bold mb-4">Meus Pedidos</h2>
+    <div className="mt-4 px-2 sm:px-0">
+      <div className="flex justify-between items-center mb-5 flex-wrap gap-2">
+        <h2 className="text-2xl font-bold mb-4 sm:mb-0">Meus Pedidos</h2>
         <Link href="/new">
-          <button className="bg-secondary text-white px-6 py-3 rounded-lg shadow-md hover:bg-secondary-dark transition">
+          <button className="bg-secondary text-white px-4 py-2 rounded-lg shadow-md hover:bg-secondary-dark transition text-sm sm:text-base">
             Solicitar Limpeza
           </button>
         </Link>
       </div>
 
-      {/* Barra de busca */}
-      <div className="mb-4 flex items-center gap-4">
-        <div className="flex-1">
+      {/* Barra de busca e ordenação */}
+      <div className="mb-4 flex flex-wrap gap-2 items-center sm:gap-4">
+        <div className="flex-1 min-w-[150px]">
           <input
             type="text"
             placeholder="Buscar por título..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:border-primary"
+            className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:border-primary text-sm"
           />
         </div>
 
-        <div>
-          <label htmlFor="sort" className="mr-2 font-medium">
-            Ordenar por:
+        <div className="flex items-center gap-2">
+          <label htmlFor="sort" className="font-medium text-sm sm:text-base">
+            Ordenar:
           </label>
           <select
             id="sort"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
-            className="p-2 border border-gray-300 rounded focus:outline-none focus:border-primary"
+            className="p-2 border border-gray-300 rounded focus:outline-none focus:border-primary text-sm sm:text-base"
           >
             <option value="createdAtDesc">Mais Recentes</option>
             <option value="createdAtAsc">Mais Antigos</option>
-
             <option value="priceAsc">Preço (Menor para Maior)</option>
             <option value="priceDesc">Preço (Maior para Menor)</option>
           </select>
@@ -151,12 +148,12 @@ export const OrderFeed = () => {
       </div>
 
       {/* Tabs de status */}
-      <div className="mb-4 flex gap-4 border-b border-gray-300 pb-2">
+      <div className="mb-4 flex flex-wrap gap-2 sm:gap-4 border-b border-gray-300 pb-2">
         {statusTabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setStatusFilter(tab.value)}
-            className={`px-3 py-1 rounded transition ${
+            className={`px-2 py-1 rounded transition text-sm ${
               statusFilter === tab.value
                 ? "bg-primary text-white"
                 : "bg-gray-200 hover:bg-gray-300"
@@ -168,7 +165,9 @@ export const OrderFeed = () => {
       </div>
 
       {filteredJobs.length === 0 ? (
-        <p className="text-gray-600">Nenhum trabalho encontrado.</p>
+        <p className="text-gray-600 text-sm sm:text-base">
+          Nenhum trabalho encontrado.
+        </p>
       ) : (
         <ul className="space-y-4">
           {filteredJobs.map((job) => (

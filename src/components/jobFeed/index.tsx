@@ -23,10 +23,19 @@ interface FeedProps {
   activeTab: string;
 }
 
+const statusTabs = [
+  { label: "Todos", value: "all" },
+  { label: "Pendentes", value: "pending" },
+  { label: "Concluídos", value: "completed" },
+  { label: "Cancelados", value: "cancelled-by-client" },
+];
+
 export const JobFeed = ({ activeTab }: FeedProps) => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [sortOption, setSortOption] = useState<string>("createdAtDesc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const { token } = useAuthStore();
 
   const fetchJobs = async () => {
@@ -53,47 +62,52 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
   };
 
   useEffect(() => {
-    fetchJobs();
+    if (token) {
+      fetchJobs();
+    }
   }, [activeTab, token]);
 
   useEffect(() => {
-    const sortedJobs = [...jobs];
+    let currentJobs = [...jobs];
+
+    // Filtro por status
+    if (statusFilter !== "all") {
+      currentJobs = currentJobs.filter((job) => job.status === statusFilter);
+    }
+
+    // Filtro por busca no título
+    if (searchQuery.trim() !== "") {
+      currentJobs = currentJobs.filter((job) =>
+        job.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Ordenação
     switch (sortOption) {
-      case "nameAsc":
-        sortedJobs.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "nameDesc":
-        sortedJobs.sort((a, b) => b.title.localeCompare(a.title));
-        break;
       case "priceAsc":
-        sortedJobs.sort((a, b) => a.price - b.price);
+        currentJobs.sort((a, b) => a.price - b.price);
         break;
       case "priceDesc":
-        sortedJobs.sort((a, b) => b.price - a.price);
+        currentJobs.sort((a, b) => b.price - a.price);
         break;
       case "createdAtAsc":
-        sortedJobs.sort(
+        currentJobs.sort(
           (a, b) =>
             new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
         break;
       case "createdAtDesc":
-        sortedJobs.sort(
+        currentJobs.sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         break;
-      case "statusAsc":
-        sortedJobs.sort((a, b) => a.status.localeCompare(b.status));
-        break;
-      case "statusDesc":
-        sortedJobs.sort((a, b) => b.status.localeCompare(a.status));
-        break;
       default:
         break;
     }
-    setFilteredJobs(sortedJobs);
-  }, [sortOption, jobs]);
+
+    setFilteredJobs(currentJobs);
+  }, [sortOption, jobs, searchQuery, statusFilter]);
 
   const handleAccept = (jobId: string) => {
     setJobs((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
@@ -105,35 +119,64 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 px-2 sm:px-0">
       <div className="flex justify-between items-center mb-5">
         <h2 className="text-2xl font-bold mb-4">
           {activeTab === "my-jobs" ? "Meus Trabalhos" : "Trabalhos Criados"}
         </h2>
-        <div className="mb-4">
-          <label htmlFor="sort" className="mr-2">
-            Ordenar por:
+      </div>
+
+      {/* Barra de busca e ordenação */}
+      <div className="mb-4 flex flex-wrap gap-2 items-center sm:gap-4">
+        <div className="flex-1 min-w-[150px]">
+          <input
+            type="text"
+            placeholder="Buscar por título..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:border-primary text-sm"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label htmlFor="sort" className="font-medium text-sm sm:text-base">
+            Ordenar:
           </label>
           <select
             id="sort"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
-            className="p-2 border rounded"
+            className="p-2 border border-gray-300 rounded focus:outline-none focus:border-primary text-sm sm:text-base"
           >
-            <option value="nameAsc">Nome (A-Z)</option>
-            <option value="nameDesc">Nome (Z-A)</option>
+            <option value="createdAtDesc">Mais Recentes</option>
+            <option value="createdAtAsc">Mais Antigos</option>
             <option value="priceAsc">Preço (Menor para Maior)</option>
             <option value="priceDesc">Preço (Maior para Menor)</option>
-            <option value="createdAtAsc">Data de Criação (Ascendente)</option>
-            <option value="createdAtDesc">Data de Criação (Descendente)</option>
-            <option value="statusAsc">Status (A-Z)</option>
-            <option value="statusDesc">Status (Z-A)</option>
           </select>
         </div>
       </div>
 
+      {/* Tabs de status */}
+      <div className="mb-4 flex flex-wrap gap-2 sm:gap-4 border-b border-gray-300 pb-2">
+        {statusTabs.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => setStatusFilter(tab.value)}
+            className={`px-2 py-1 rounded transition text-sm ${
+              statusFilter === tab.value
+                ? "bg-primary text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {filteredJobs.length === 0 ? (
-        <p>Nenhum trabalho encontrado.</p>
+        <p className="text-gray-600 text-sm sm:text-base">
+          Nenhum trabalho encontrado.
+        </p>
       ) : (
         <ul className="space-y-4">
           {filteredJobs.map((job) => (

@@ -22,7 +22,7 @@ export const Header = () => {
 
   useEffect(() => {
     if (user && user._id) {
-      fetch(`${baseUrl}/users/${user._id}/notifications`, {
+      fetch(`${baseUrl}/notifications/${user._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -112,12 +112,13 @@ export const Header = () => {
 
     if (!user) return;
 
-    fetch(`${baseUrl}/users/${user._id}/notifications`, {
+    fetch(`${baseUrl}/notifications/${user._id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    setShowNotifications(false);
   };
 
   return (
@@ -138,58 +139,60 @@ export const Header = () => {
           <h1>{user?.fullName}</h1>
 
           {/* Ícone de Notificações */}
-          <div className="relative">
-            <button
-              onClick={toggleNotifications}
-              className="relative focus:outline-none"
-            >
-              <NotificationsIcon />
-              {notifications.filter((n) => !n.read).length > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  {notifications.filter((n) => !n.read).length}
-                </span>
-              )}
-            </button>
+          {isLoggedIn && (
+            <div className="relative">
+              <button
+                onClick={toggleNotifications}
+                className="relative focus:outline-none"
+              >
+                <NotificationsIcon />
+                {notifications.filter((n) => !n.read).length > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    {notifications.filter((n) => !n.read).length}
+                  </span>
+                )}
+              </button>
 
-            {showNotifications && (
-              <div className="absolute top-8 right-0 bg-white text-black p-2 rounded shadow-lg w-72 z-50">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-sm">Notificações</span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={markAllAsRead}
-                      className="text-xs text-gray-600 hover:text-gray-800 underline"
-                    >
-                      Marcar todas como lidas
-                    </button>
-                    <button
-                      onClick={clearAllNotifications}
-                      className="text-xs text-red-600 hover:text-red-800 underline"
-                    >
-                      Limpar
-                    </button>
+              {showNotifications && (
+                <div className="absolute top-8 right-0 bg-white text-black p-2 rounded shadow-lg w-72 z-50">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-sm">Notificações</span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-xs text-gray-600 hover:text-gray-800 underline"
+                      >
+                        Marcar todas como lidas
+                      </button>
+                      <button
+                        onClick={clearAllNotifications}
+                        className="text-xs text-red-600 hover:text-red-800 underline"
+                      >
+                        Limpar
+                      </button>
+                    </div>
+                  </div>
+                  <div className="max-h-48 overflow-y-auto space-y-2 text-sm">
+                    {notifications.length === 0 ? (
+                      <div className="text-gray-500">Sem notificações</div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <div
+                          key={notif.id}
+                          onClick={() => handleNotificationClick(notif)}
+                          className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${
+                            !notif.read ? "font-semibold" : "font-normal"
+                          }`}
+                        >
+                          {notif.message}
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
-                <div className="max-h-48 overflow-y-auto space-y-2 text-sm">
-                  {notifications.length === 0 ? (
-                    <div className="text-gray-500">Sem notificações</div>
-                  ) : (
-                    notifications.map((notif) => (
-                      <div
-                        key={notif.id}
-                        onClick={() => handleNotificationClick(notif)}
-                        className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${
-                          !notif.read ? "font-semibold" : "font-normal"
-                        }`}
-                      >
-                        {notif.message}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           <Link href="/profile">
             <AccountCircleIcon />
