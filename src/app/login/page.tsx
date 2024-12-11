@@ -46,9 +46,11 @@ const Login = () => {
           placeholder="Email"
           className="w-full p-2 mb-3 border rounded"
           value={email}
+          autoComplete="email"
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
+          autoComplete="password"
           type="password"
           placeholder="Senha"
           className="w-full p-2 mb-3 border rounded"

@@ -1,6 +1,7 @@
 // components/orderFeed/orderCard/OrderCardCompleted.tsx
 
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
 import { useState, useEffect } from "react";
@@ -12,7 +13,10 @@ import {
   FaBalanceScale,
   FaLifeRing,
   FaStar,
+  FaCheck,
 } from "react-icons/fa";
+
+dayjs.extend(relativeTime);
 
 interface Job {
   _id: string;
@@ -71,6 +75,32 @@ export const OrderCardCompleted = ({
         "O período de contestação expirou. O pagamento será liberado em breve.";
     }
   }
+
+  // Função para aceitar a conclusão do trabalho
+  const handleAcceptCompletion = async () => {
+    try {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/accept-completion`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(
+          data.message || "Erro ao aceitar conclusão do trabalho"
+        );
+      }
+
+      const updatedJob: Job = await res.json();
+      toast.success("Conclusão do trabalho aceita com sucesso!");
+      onJobUpdate && onJobUpdate(updatedJob);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao aceitar conclusão do trabalho");
+    }
+  };
 
   const handleOpenDispute = async () => {
     try {
@@ -268,6 +298,18 @@ export const OrderCardCompleted = ({
           </>
         )}
       </div>
+
+      {/* Botões de ação */}
+      {/* <div className="mt-4 flex justify-end gap-2">
+        {job.status === "waiting-for-rating" && (
+          <button
+            onClick={handleAcceptCompletion}
+            className="flex items-center gap-1 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
+          >
+            <FaCheck /> Aceitar Conclusão
+          </button>
+        )}
+      </div> */}
     </li>
   );
 };

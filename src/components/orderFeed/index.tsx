@@ -6,7 +6,7 @@ import Link from "next/link";
 import { baseUrl } from "@/services/api";
 import { OrderCardPending } from "./orderCard/orderCardPending";
 import { OrderCardInProgress } from "./orderCard/orderCardInProgress";
-import { OrderCardCompleted } from "./orderCard/orderCardCompleted";
+import { OrderCardCompleted } from "./orderCard/orderCardCompleted/index";
 import { OrderCardCancelled } from "./orderCard/orderCardCancelled";
 import { OrderCardDispute } from "./orderCard/orderCardDispute";
 
@@ -121,7 +121,7 @@ export const OrderFeed = () => {
   // Função para atualizar o trabalho na lista
   const handleJobUpdate = (updatedJob: Job) => {
     setJobs((prevJobs) =>
-      prevJobs.map((job) => (job._id === updatedJob._id ? updatedJob : job))
+      prevJobs.map((job) => (job._id === updatedJob?._id ? updatedJob : job))
     );
   };
 
