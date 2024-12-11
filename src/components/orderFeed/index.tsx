@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { OrderCard } from "@/components/orderFeed/orderCard/index";
 import Link from "next/link";
 import { baseUrl } from "@/services/api";
+import { OrderCardPending } from "./orderCard/orderCardPending";
+import { OrderCardInProgress } from "./orderCard/orderCardInProgress";
+import { OrderCardCompleted } from "./orderCard/orderCardCompleted";
+import { OrderCardCancelled } from "./orderCard/orderCardCancelled";
+import { OrderCardDispute } from "./orderCard/orderCardDispute";
 
 interface Job {
   _id: string;
@@ -24,17 +28,16 @@ interface Job {
     fullName: string;
   };
   workerName?: string;
-  isRated?: boolean; // Incluído para rastrear se foi avaliado
+  isRated?: boolean;
 }
 
 const statusTabs = [
   { label: "Todos", value: "all" },
   { label: "Pendentes", value: "pending" },
   { label: "Em Progresso", value: "in-progress" },
-  { label: "Aguardando conclusão", value: "waiting-for-rating" },
+  { label: "Aguardando avaliação", value: "waiting-for-rating" },
   { label: "Concluídos", value: "completed" },
   { label: "Cancelados", value: "cancelled-by-client" },
-
   { label: "Em disputa", value: "dispute" },
 ];
 
@@ -122,6 +125,50 @@ export const OrderFeed = () => {
     );
   };
 
+  // Função para renderizar o componente de OrderCard adequado
+  const renderOrderCard = (job: Job) => {
+    switch (job.status) {
+      case "pending":
+        return (
+          <OrderCardPending
+            key={job._id}
+            job={job}
+            onJobUpdate={handleJobUpdate}
+          />
+        );
+      case "in-progress":
+        return (
+          <OrderCardInProgress
+            key={job._id}
+            job={job}
+            onJobUpdate={handleJobUpdate}
+          />
+        );
+      case "completed":
+      case "waiting-for-rating":
+        return (
+          <OrderCardCompleted
+            key={job._id}
+            job={job}
+            onJobUpdate={handleJobUpdate}
+          />
+        );
+      case "cancelled":
+      case "cancelled-by-client":
+        return (
+          <OrderCardCancelled
+            key={job._id}
+            job={job}
+            onJobUpdate={handleJobUpdate}
+          />
+        );
+      case "dispute":
+        return <OrderCardDispute key={job._id} job={job} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="mt-4 px-2 sm:px-0">
       <div className="flex justify-between items-center mb-5 flex-wrap gap-2">
@@ -186,9 +233,7 @@ export const OrderFeed = () => {
         </p>
       ) : (
         <ul className="space-y-4">
-          {filteredJobs.map((job) => (
-            <OrderCard key={job._id} job={job} onJobUpdate={handleJobUpdate} />
-          ))}
+          {filteredJobs.map((job) => renderOrderCard(job))}
         </ul>
       )}
     </div>

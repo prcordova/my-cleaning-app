@@ -1,8 +1,12 @@
-// components/orderFeed/orderCard/OrderCardBase.tsx
+// components/orderFeed/orderCard/OrderCardCancelled.tsx
 
 import dayjs from "dayjs";
-import { FaInfoCircle } from "react-icons/fa";
+import { toast } from "react-hot-toast";
+import { useAuthStore } from "@/store/authStore";
+import { baseUrl } from "@/services/api";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
+import { FaInfoCircle, FaRedo } from "react-icons/fa";
+import { useState } from "react";
 
 interface Job {
   _id: string;
@@ -28,22 +32,46 @@ interface Job {
   disputeUntil?: string;
 }
 
-interface OrderCardBaseProps {
+interface OrderCardCancelledProps {
   job: Job;
-  children?: React.ReactNode;
+  onJobUpdate?: (updatedJob: Job) => void;
 }
 
-export const OrderCardBase = ({ job, children }: OrderCardBaseProps) => {
+export const OrderCardCancelled = ({
+  job,
+  onJobUpdate,
+}: OrderCardCancelledProps) => {
+  const { token } = useAuthStore();
+  const [jobStatus, setJobStatus] = useState(job.status);
+
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 
+  const handleReactivateOrder = async () => {
+    try {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/reactivate`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Erro ao reativar pedido");
+      }
+
+      const updatedJob: Job = await res.json();
+      setJobStatus(updatedJob.status);
+      toast.success("Pedido reativado com sucesso!");
+      onJobUpdate && onJobUpdate(updatedJob);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao reativar pedido");
+    }
+  };
+
   return (
-    <li
-      className={`bg-white p-4 rounded shadow-md hover:bg-gray-50 transition ${
-        job.status === "cancelled" || job.status === "cancelled-by-client"
-          ? "bg-gray-200"
-          : ""
-      }`}
-    >
+    <li className="bg-gray-200 p-4 rounded shadow-md">
       {/* Topo: Imagem e Título */}
       <div className="flex flex-col sm:flex-row gap-4 items-start">
         <div className="flex-shrink-0">
@@ -89,8 +117,20 @@ export const OrderCardBase = ({ job, children }: OrderCardBaseProps) => {
         </p>
       </div>
 
-      {/* Conteúdo Específico do Status */}
-      <div className="mt-3">{children}</div>
+      {/* Mensagem de Cancelamento */}
+      <div className="mt-3 text-sm text-gray-800">
+        <p className="font-bold mb-1 text-red-600">
+          Este pedido foi cancelado.
+        </p>
+        {job.status === "cancelled-by-client" && (
+          <button
+            onClick={handleReactivateOrder}
+            className="flex items-center gap-1 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
+          >
+            <FaRedo /> Reativar Pedido
+          </button>
+        )}
+      </div>
     </li>
   );
 };

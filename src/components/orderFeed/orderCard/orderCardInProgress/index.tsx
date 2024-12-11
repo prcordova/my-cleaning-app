@@ -1,8 +1,17 @@
-// components/orderFeed/orderCard/OrderCardBase.tsx
+// components/orderFeed/orderCard/OrderCardInProgress.tsx
 
 import dayjs from "dayjs";
+import { toast } from "react-hot-toast";
+import { useAuthStore } from "@/store/authStore";
+import { useState } from "react";
+import { baseUrl } from "@/services/api";
+import {
+  MdLocationOn,
+  MdCalendarToday,
+  MdAttachMoney,
+  MdCancel,
+} from "react-icons/md";
 import { FaInfoCircle } from "react-icons/fa";
-import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
 
 interface Job {
   _id: string;
@@ -28,22 +37,46 @@ interface Job {
   disputeUntil?: string;
 }
 
-interface OrderCardBaseProps {
+interface OrderCardInProgressProps {
   job: Job;
-  children?: React.ReactNode;
+  onJobUpdate?: (updatedJob: Job) => void;
 }
 
-export const OrderCardBase = ({ job, children }: OrderCardBaseProps) => {
+export const OrderCardInProgress = ({
+  job,
+  onJobUpdate,
+}: OrderCardInProgressProps) => {
+  const { token } = useAuthStore();
+  const [jobStatus, setJobStatus] = useState(job.status);
+
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 
+  const handleCancelOrder = async () => {
+    try {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/cancel-order`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Erro ao cancelar pedido");
+      }
+
+      const updatedJob: Job = await res.json();
+      setJobStatus(updatedJob.status);
+      toast.success("Pedido cancelado com sucesso!");
+      onJobUpdate && onJobUpdate(updatedJob);
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao cancelar pedido");
+    }
+  };
+
   return (
-    <li
-      className={`bg-white p-4 rounded shadow-md hover:bg-gray-50 transition ${
-        job.status === "cancelled" || job.status === "cancelled-by-client"
-          ? "bg-gray-200"
-          : ""
-      }`}
-    >
+    <li className="bg-white p-4 rounded shadow-md hover:bg-gray-50 transition">
       {/* Topo: Imagem e Título */}
       <div className="flex flex-col sm:flex-row gap-4 items-start">
         <div className="flex-shrink-0">
@@ -89,8 +122,15 @@ export const OrderCardBase = ({ job, children }: OrderCardBaseProps) => {
         </p>
       </div>
 
-      {/* Conteúdo Específico do Status */}
-      <div className="mt-3">{children}</div>
+      {/* Botões de Ação */}
+      <div className="mt-4 flex justify-end gap-2">
+        <button
+          onClick={handleCancelOrder}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600 flex items-center gap-1"
+        >
+          <MdCancel /> Cancelar Pedido
+        </button>
+      </div>
     </li>
   );
 };

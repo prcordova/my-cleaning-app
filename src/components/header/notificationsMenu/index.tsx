@@ -130,7 +130,9 @@ export const NotificationMenu = ({ userId, token }: NotificationMenuProps) => {
           </div>
           <div className="max-h-48 overflow-y-auto space-y-2">
             {notifications.length === 0 ? (
-              <div className="text-gray-500">Sem notificações</div>
+              <div key={notifications.length} className="text-gray-500">
+                Sem notificações
+              </div>
             ) : (
               notifications.map((notif) => (
                 <NotificationItem

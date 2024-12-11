@@ -1,8 +1,10 @@
-// components/orderFeed/orderCard/OrderCardBase.tsx
+// components/orderFeed/orderCard/OrderCardDispute.tsx
 
 import dayjs from "dayjs";
-import { FaInfoCircle } from "react-icons/fa";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
+import { FaInfoCircle } from "react-icons/fa";
+
+// components/orderFeed/orderCard/OrderCardDispute.tsx
 
 interface Job {
   _id: string;
@@ -28,22 +30,15 @@ interface Job {
   disputeUntil?: string;
 }
 
-interface OrderCardBaseProps {
+interface OrderCardDisputeProps {
   job: Job;
-  children?: React.ReactNode;
 }
 
-export const OrderCardBase = ({ job, children }: OrderCardBaseProps) => {
+export const OrderCardDispute = ({ job }: OrderCardDisputeProps) => {
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 
   return (
-    <li
-      className={`bg-white p-4 rounded shadow-md hover:bg-gray-50 transition ${
-        job.status === "cancelled" || job.status === "cancelled-by-client"
-          ? "bg-gray-200"
-          : ""
-      }`}
-    >
+    <li className="bg-white p-4 rounded shadow-md hover:bg-gray-50 transition">
       {/* Topo: Imagem e Título */}
       <div className="flex flex-col sm:flex-row gap-4 items-start">
         <div className="flex-shrink-0">
@@ -89,8 +84,14 @@ export const OrderCardBase = ({ job, children }: OrderCardBaseProps) => {
         </p>
       </div>
 
-      {/* Conteúdo Específico do Status */}
-      <div className="mt-3">{children}</div>
+      {/* Mensagem de Disputa */}
+      <div className="mt-3 text-sm text-gray-800">
+        <p className="font-bold mb-1">Disputa em andamento!</p>
+        <p>
+          O suporte foi notificado e está analisando o caso. Por favor, aguarde
+          enquanto um administrador entra em contato ou toma uma decisão.
+        </p>
+      </div>
     </li>
   );
 };
