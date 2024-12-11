@@ -1,4 +1,3 @@
-// authStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -13,7 +12,7 @@ interface Address {
 }
 
 interface User {
-  userId: string;
+  _id: string; // 🔥 Agora _id é obrigatório
   fullName: string;
   email: string;
   cpf: string;
@@ -21,6 +20,9 @@ interface User {
   birthDate: string;
   address: Address;
   workerDetails: Record<string, any>;
+  hasAcceptedTerms: boolean;
+  termsAcceptedDate: string;
+  faceVerified: boolean;
 }
 
 interface AuthState {
@@ -41,11 +43,11 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       setAuth: (data) =>
         set(() => ({
-          token: data.access_token,
-          role: data.role,
-          isLoggedIn: true,
+          token: data.access_token, // 🔥 Armazena o access_token
+          role: data.role, // 🔥 Armazena a role do usuário
+          isLoggedIn: true, // 🔥 Marca o usuário como logado
           user: {
-            userId: data.userId,
+            _id: data._id, // 🔥 Agora _id é usado consistentemente
             fullName: data.fullName,
             email: data.email,
             cpf: data.cpf,
@@ -53,6 +55,9 @@ export const useAuthStore = create<AuthState>()(
             birthDate: data.birthDate,
             address: data.address,
             workerDetails: data.workerDetails,
+            termsAcceptedDate: data.termsAcceptedDate,
+            hasAcceptedTerms: data.hasAcceptedTerms,
+            faceVerified: data.faceVerified,
           },
         })),
       clearAuth: () =>
@@ -65,6 +70,13 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage", // Nome do armazenamento no localStorage
+      // 🔥 Aqui garantimos que o Zustand persiste o estado completo
+      partialize: (state) => ({
+        token: state.token,
+        role: state.role,
+        isLoggedIn: state.isLoggedIn,
+        user: state.user, // 🔥 Agora o user será armazenado no localStorage
+      }),
     }
   )
 );

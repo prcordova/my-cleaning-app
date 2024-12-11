@@ -8,15 +8,22 @@ import {
   Container,
   Box,
   Grid,
+  RadioGroup,
+  FormControl,
+  FormLabel,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import { z } from "zod";
-import cep from "cep-promise";
-import { workerSchema } from "./worker-schema";
-
+import { userSchema } from "./user-schema";
+import toast from "react-hot-toast";
+import { baseUrl } from "@/services/api";
 // Schema de validação com Zod
 
-const RegisterWorker = () => {
+const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [documentFileName, setDocumentFileName] = useState<string>("");
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -26,6 +33,7 @@ const RegisterWorker = () => {
     birthDate: "",
     password: "",
     confirmPassword: "",
+    role: "client",
     address: {
       cep: "",
       street: "",
@@ -38,6 +46,7 @@ const RegisterWorker = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [clientType, setClientType] = useState("client" as "client" | "worker");
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -114,13 +123,20 @@ const RegisterWorker = () => {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     try {
-      workerSchema.shape[name as keyof typeof workerSchema.shape].parse(value);
+      userSchema.shape[name as keyof typeof userSchema.shape].parse(value);
       setErrors((prev) => ({ ...prev, [name]: "" }));
     } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
         [name]: err.errors?.[0]?.message || "",
       }));
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setDocumentFile(e.target.files[0]);
+      setDocumentFileName(e.target.files[0].name);
     }
   };
 
@@ -140,6 +156,7 @@ const RegisterWorker = () => {
         birthDate: formData.birthDate,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
+        role: clientType ? "client" : "worker",
         address: {
           cep: formData.address.cep,
           street: formData.address.street,
@@ -151,9 +168,24 @@ const RegisterWorker = () => {
         },
       };
       console.log("updatedFormData", updatedFormData);
-      workerSchema.parse(updatedFormData);
+      userSchema.parse(updatedFormData);
 
-      const response = await fetch("http://localhost:3000/auth/register", {
+      // Enviar o documento para a API de OCR
+      const formDataToSend = new FormData();
+      formDataToSend.append("document", documentFile as Blob);
+      formDataToSend.append("formData", JSON.stringify(updatedFormData));
+
+      const ocrResponse = await fetch(`${baseUrl}/ocr/validate`, {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      if (!ocrResponse.ok) {
+        const errorData = await ocrResponse.json();
+        throw new Error(errorData.message || "Erro ao validar documento.");
+      }
+
+      const response = await fetch(`${baseUrl}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -166,7 +198,8 @@ const RegisterWorker = () => {
         throw new Error(errorData.message || "Erro ao registrar.");
       }
 
-      alert("Registro bem-sucedido!");
+      toast.success("Registro bem-sucedido!");
+      toast.success("Faça login para continuar.");
       window.location.href = "/login";
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -177,7 +210,7 @@ const RegisterWorker = () => {
         setErrors(fieldErrors);
       } else {
         console.error(err);
-        alert(err.message || "Erro no servidor.");
+        toast.error(err.message || "Erro ao registrar.");
       }
     } finally {
       setIsLoading(false);
@@ -199,12 +232,13 @@ const RegisterWorker = () => {
         }}
       >
         <Typography
+          className="mb-8"
           variant="h5"
           gutterBottom
           color="primary"
           textAlign="center"
         >
-          Registrar Trabalhador
+          Registrar Novo Usuário
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
@@ -233,6 +267,27 @@ const RegisterWorker = () => {
               helperText={errors.email}
             />
           </Grid>
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Tipo de usuário</FormLabel>
+              <RadioGroup
+                value={clientType ? "client" : "worker"}
+                onChange={(e) => setClientType(e.target.value === "client")}
+              >
+                <FormControlLabel
+                  value="client"
+                  control={<Radio />}
+                  label="Cliente"
+                />
+                <FormControlLabel
+                  value="worker"
+                  control={<Radio />}
+                  label="Trabalhador"
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
@@ -389,7 +444,27 @@ const RegisterWorker = () => {
               helperText={errors.confirmPassword}
             />
           </Grid>
-
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              component="label"
+              fullWidth
+              sx={{ mt: 3 }}
+            >
+              Upload Documento
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </Button>
+            {documentFileName && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Arquivo: {documentFileName}
+              </Typography>
+            )}
+          </Grid>
           <Grid item xs={12}>
             <Button
               type="submit"
@@ -409,4 +484,4 @@ const RegisterWorker = () => {
   );
 };
 
-export default RegisterWorker;
+export default Register;
