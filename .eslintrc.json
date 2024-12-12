@@ -1,3 +1,12 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    // Desativa a regra que impede o uso de 'any'
+    "@typescript-eslint/no-explicit-any": "off",
+    // Desativa a regra que impede o uso de 'console'
+    "no-console": "off",
+    // Desativa a regra que exige prop-types em componentes React
+    "react/prop-types": "off"
+    // Adicione outras regras conforme necessário
+  }
 }
