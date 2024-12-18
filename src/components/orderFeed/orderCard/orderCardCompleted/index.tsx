@@ -79,7 +79,7 @@ export const OrderCardCompleted = ({
   // Função para aceitar a conclusão do trabalho
   const handleAcceptCompletion = async () => {
     try {
-      const res = await fetch(`${baseUrl}/jobs/${job._id}/accept-completion`, {
+      const res = await fetch(`${baseUrl}/jobs/${job._id}/complete-order`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

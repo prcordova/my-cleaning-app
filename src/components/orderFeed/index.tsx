@@ -169,6 +169,14 @@ export const OrderFeed = () => {
     }
   };
 
+  // Contagem por status
+  const statusCounts = jobs.reduce((acc: Record<string, number>, job: Job) => {
+    acc[job.status] = (acc[job.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  const totalCount = jobs.length;
+
   return (
     <div className="mt-4 px-2 sm:px-0">
       <div className="flex justify-between items-center mb-5 flex-wrap gap-2">
@@ -210,21 +218,33 @@ export const OrderFeed = () => {
         </div>
       </div>
 
-      {/* Tabs de status */}
+      {/* Tabs de status - mostrar apenas as que têm items */}
       <div className="mb-4 flex flex-wrap gap-2 sm:gap-4 border-b border-gray-300 pb-2">
-        {statusTabs.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setStatusFilter(tab.value)}
-            className={`px-2 py-1 rounded transition text-sm ${
-              statusFilter === tab.value
-                ? "bg-primary text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {statusTabs.map((tab) => {
+          let shouldShowTab = false;
+
+          if (tab.value === "all") {
+            shouldShowTab = totalCount > 0;
+          } else {
+            shouldShowTab = (statusCounts[tab.value] || 0) > 0;
+          }
+
+          if (!shouldShowTab) return null;
+
+          return (
+            <button
+              key={tab.value}
+              onClick={() => setStatusFilter(tab.value)}
+              className={`px-2 py-1 rounded transition text-sm ${
+                statusFilter === tab.value
+                  ? "bg-primary text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {filteredJobs.length === 0 ? (
