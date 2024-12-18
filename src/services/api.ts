@@ -1,5 +1,5 @@
-// export const baseUrl = "http://localhost:8080";
-export const baseUrl = "https://limpfybackend-ucdppc9d.b4a.run/";
+export const baseUrl = "http://localhost:8080";
+// export const baseUrl = "https://limpfybackend-ucdppc9d.b4a.run/";
 
 export const login = async (email: string, password: string) => {
   const res = await fetch(`${baseUrl}/auth/login`, {

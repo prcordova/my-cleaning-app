@@ -26,7 +26,7 @@ export default function Jobs() {
                 }`}
                 onClick={() => setActiveTab("all")}
               >
-                Todos os Trabalhos
+                Buscar Trabalho{" "}
               </button>
               <button
                 className={`px-4 py-2 ${

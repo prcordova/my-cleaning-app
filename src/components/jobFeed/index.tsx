@@ -1,7 +1,13 @@
+// components/jobFeed/index.tsx
+
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { JobCard } from "@/components/jobFeed/jobCard/Index";
 import { baseUrl } from "@/services/api";
+import { JobCardPending } from "./jobCardPending";
+import { JobCardInProgress } from "./jobCardInProgress";
+import { JobCardCompleted } from "./jobCardCompleted";
+import { JobCardCancelled } from "./jobCardCancelled";
+import { JobCardDispute } from "./jobCardDispute";
 
 interface Job {
   _id: string;
@@ -9,7 +15,8 @@ interface Job {
   description: string;
   status: string;
   createdAt: string;
-  price: number;
+  price?: number;
+  isRated?: boolean;
   location: {
     cep: string;
     street: string;
@@ -17,6 +24,15 @@ interface Job {
     state: string;
   };
   workerId?: string;
+  workerName?: string;
+  clientId?: {
+    _id: string;
+    fullName: string;
+  };
+  imageUrl?: string;
+  cleanedPhoto?: string;
+  completedAt?: string;
+  disputeUntil?: string;
 }
 
 interface FeedProps {
@@ -25,8 +41,12 @@ interface FeedProps {
 
 const statusTabs = [
   { label: "Todos", value: "all" },
+  { label: "Pendentes", value: "pending" },
+  { label: "Em Progresso", value: "in-progress" },
   { label: "Concluídos", value: "completed" },
+  { label: "Aguardando Avaliação", value: "waiting-for-rating" },
   { label: "Cancelados", value: "cancelled-by-client" },
+  { label: "Em Disputa", value: "dispute" },
 ];
 
 export const JobFeed = ({ activeTab }: FeedProps) => {
@@ -37,41 +57,48 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const { token } = useAuthStore();
 
-  const fetchJobs = async () => {
-    try {
-      const endpoint =
-        activeTab === "my-jobs" ? `${baseUrl}/jobs/my-jobs` : `${baseUrl}/jobs`;
-      const res = await fetch(endpoint, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Erro ao buscar trabalhos.");
-      }
-
-      const data = await res.json();
-      setJobs(data);
-      setFilteredJobs(data);
-    } catch (err: any) {
-      console.error(err.message || "Erro ao buscar trabalhos.");
-    }
-  };
-
   useEffect(() => {
-    if (token) {
-      fetchJobs();
-    }
+    const fetchJobs = async () => {
+      try {
+        const endpoint =
+          activeTab === "my-jobs"
+            ? `${baseUrl}/jobs/my-jobs`
+            : `${baseUrl}/jobs`;
+        const res = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Erro ao buscar trabalhos.");
+        }
+
+        let data = await res.json();
+
+        // Se não estiver em "my-jobs", filtrar para mostrar apenas pendentes
+        if (activeTab !== "my-jobs") {
+          data = data.filter((job: Job) => job.status === "pending");
+        }
+
+        setJobs(data);
+      } catch (err: any) {
+        console.error(err.message || "Erro ao buscar trabalhos.");
+      }
+    };
+
+    fetchJobs();
   }, [activeTab, token]);
 
   useEffect(() => {
     let currentJobs = [...jobs];
 
-    // Filtro por status
-    if (statusFilter !== "all") {
-      currentJobs = currentJobs.filter((job) => job.status === statusFilter);
+    // Só aplicar filtros de status se estiver em "my-jobs"
+    if (activeTab === "my-jobs") {
+      if (statusFilter !== "all") {
+        currentJobs = currentJobs.filter((job) => job.status === statusFilter);
+      }
     }
 
     // Filtro por busca no título
@@ -84,10 +111,10 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
     // Ordenação
     switch (sortOption) {
       case "priceAsc":
-        currentJobs.sort((a, b) => a.price - b.price);
+        currentJobs.sort((a, b) => (a.price || 0) - (b.price || 0));
         break;
       case "priceDesc":
-        currentJobs.sort((a, b) => b.price - a.price);
+        currentJobs.sort((a, b) => (b.price || 0) - (a.price || 0));
         break;
       case "createdAtAsc":
         currentJobs.sort(
@@ -106,21 +133,66 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
     }
 
     setFilteredJobs(currentJobs);
-  }, [sortOption, jobs, searchQuery, statusFilter]);
+  }, [sortOption, jobs, searchQuery, statusFilter, activeTab]);
 
-  const handleAccept = (jobId: string) => {
-    setJobs((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
-    fetchJobs();
+  // Função para atualizar o trabalho na lista
+  const handleJobUpdate = (updatedJob: Job) => {
+    setJobs((prevJobs) =>
+      prevJobs.map((job) => (job._id === updatedJob._id ? updatedJob : job))
+    );
   };
 
-  const handleCancel = (jobId: string) => {
-    setJobs((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
+  // Função para renderizar o componente de JobCard adequado
+  const renderJobCard = (job: Job) => {
+    switch (job.status) {
+      case "pending":
+        return (
+          <JobCardPending
+            key={job._id}
+            job={job}
+            onJobUpdate={handleJobUpdate}
+          />
+        );
+      case "in-progress":
+        return (
+          <JobCardInProgress
+            key={job._id}
+            job={job}
+            onJobUpdate={handleJobUpdate}
+          />
+        );
+      case "completed":
+      case "waiting-for-rating":
+        return (
+          <JobCardCompleted
+            key={job._id}
+            job={job}
+            onJobUpdate={handleJobUpdate}
+          />
+        );
+      case "cancelled":
+      case "cancelled-by-client":
+        return <JobCardCancelled key={job._id} job={job} />;
+      case "dispute":
+        return <JobCardDispute key={job._id} job={job} />;
+      default:
+        return null;
+    }
   };
+
+  // Contagem de cada status para decidir quais abas mostrar
+  const statusCounts = jobs.reduce((acc: Record<string, number>, job: Job) => {
+    acc[job.status] = (acc[job.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Contagem total
+  const totalCount = jobs.length;
 
   return (
     <div className="mt-4 px-2 sm:px-0">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-bold mb-4">
+      <div className="flex justify-between items-center mb-5 flex-wrap gap-2">
+        <h2 className="text-2xl font-bold mb-4 sm:mb-0">
           {activeTab === "my-jobs" ? "Meus Trabalhos" : "Trabalhos Criados"}
         </h2>
       </div>
@@ -155,22 +227,38 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
         </div>
       </div>
 
-      {/* Tabs de status */}
-      <div className="mb-4 flex flex-wrap gap-2 sm:gap-4 border-b border-gray-300 pb-2">
-        {statusTabs.map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setStatusFilter(tab.value)}
-            className={`px-2 py-1 rounded transition text-sm ${
-              statusFilter === tab.value
-                ? "bg-primary text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Tabs de status - somente se for "my-jobs" */}
+      {activeTab === "my-jobs" && (
+        <div className="mb-4 flex flex-wrap gap-2 sm:gap-4 border-b border-gray-300 pb-2">
+          {statusTabs.map((tab) => {
+            let shouldShowTab = false;
+
+            if (tab.value === "all") {
+              // Mostrar "Todos" se houver qualquer job
+              shouldShowTab = totalCount > 0;
+            } else {
+              // Mostrar somente se houver ao menos um job desse status
+              shouldShowTab = (statusCounts[tab.value] || 0) > 0;
+            }
+
+            if (!shouldShowTab) return null;
+
+            return (
+              <button
+                key={tab.value}
+                onClick={() => setStatusFilter(tab.value)}
+                className={`px-2 py-1 rounded transition text-sm ${
+                  statusFilter === tab.value
+                    ? "bg-primary text-white"
+                    : "bg-gray-200 hover:bg-gray-300"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {filteredJobs.length === 0 ? (
         <p className="text-gray-600 text-sm sm:text-base">
@@ -178,14 +266,7 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
         </p>
       ) : (
         <ul className="space-y-4">
-          {filteredJobs.map((job) => (
-            <JobCard
-              key={job._id}
-              job={job}
-              onAccept={handleAccept}
-              onCancel={handleCancel}
-            />
-          ))}
+          {filteredJobs.map((job) => renderJobCard(job))}
         </ul>
       )}
     </div>
