@@ -265,9 +265,16 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
           Nenhum trabalho encontrado.
         </p>
       ) : (
-        <ul className="space-y-4">
-          {filteredJobs.map((job) => renderJobCard(job))}
-        </ul>
+        <>
+          <div className="space-y-4 flex text-center justify-center">
+            <div>{`${filteredJobs.length} trabalho${
+              filteredJobs.length > 1 ? "s" : ""
+            } encontrado${filteredJobs.length > 1 ? "s" : ""}`}</div>
+          </div>
+          <ul className="space-y-4">
+            {filteredJobs.map((job) => renderJobCard(job))}
+          </ul>
+        </>
       )}
     </div>
   );

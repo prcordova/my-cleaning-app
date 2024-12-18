@@ -252,9 +252,16 @@ export const OrderFeed = () => {
           Nenhum trabalho encontrado.
         </p>
       ) : (
-        <ul className="space-y-4">
-          {filteredJobs.map((job) => renderOrderCard(job))}
-        </ul>
+        <>
+          <div className="space-y-4 flex text-center justify-center">
+            <div>{`${filteredJobs.length} trabalho${
+              filteredJobs.length > 1 ? "s" : ""
+            } encontrado${filteredJobs.length > 1 ? "s" : ""}`}</div>
+          </div>
+          <ul className="space-y-4">
+            {filteredJobs.map((job) => renderOrderCard(job))}
+          </ul>
+        </>
       )}
     </div>
   );
