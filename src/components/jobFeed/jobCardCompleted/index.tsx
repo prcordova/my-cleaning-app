@@ -7,14 +7,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useState, useEffect } from "react";
 import { baseUrl } from "@/services/api";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
-import {
-  FaInfoCircle,
-  FaImage,
-  FaBalanceScale,
-  FaLifeRing,
-  FaStar,
-  FaUser,
-} from "react-icons/fa";
+import { FaInfoCircle, FaImage, FaUser } from "react-icons/fa";
 
 dayjs.extend(relativeTime);
 
@@ -49,10 +42,7 @@ interface JobCardCompletedProps {
   onJobUpdate?: (updatedJob: Job) => void;
 }
 
-export const JobCardCompleted = ({
-  job,
-  onJobUpdate,
-}: JobCardCompletedProps) => {
+export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
   const { token, user } = useAuthStore();
   const [showImages, setShowImages] = useState(false);
   const [rating, setRating] = useState<number | null>(null);
@@ -77,72 +67,6 @@ export const JobCardCompleted = ({
         "O período de contestação expirou. O pagamento será liberado em breve.";
     }
   }
-
-  // Função para abrir disputa
-  const handleOpenDispute = async () => {
-    try {
-      const res = await fetch(`${baseUrl}/jobs/${job._id}/open-dispute`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ reason: "Qualidade do serviço insatisfatória" }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Erro ao abrir disputa");
-      }
-
-      const updatedJob: Job = await res.json();
-      toast.success(
-        "Disputa aberta com sucesso! O suporte foi notificado e irá analisar."
-      );
-      onJobUpdate && onJobUpdate(updatedJob);
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao abrir disputa");
-    }
-  };
-
-  // Função para pedir ajuda ao suporte
-  const handleRequestHelp = () => {
-    // Implementar a lógica para pedir ajuda ao suporte, como abrir um modal
-    toast("Solicitação de ajuda enviada ao suporte.", { icon: "ℹ️" });
-  };
-
-  // Função para enviar avaliação
-  const handleSendRating = async () => {
-    if (rating == null) {
-      toast.error("Por favor, selecione uma nota antes de enviar.");
-      return;
-    }
-    try {
-      const res = await fetch(`${baseUrl}/jobs/${job._id}/rate`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ rating, comment: ratingComment }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Erro ao enviar avaliação");
-      }
-
-      // Após sucesso, atualize isRated e informe o JobFeed
-      const responseData = await res.json();
-      setIsRated(true);
-      toast.success("Avaliação enviada com sucesso!");
-      if (onJobUpdate) {
-        onJobUpdate(responseData.job); // Atualiza o job na lista do JobFeed
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao enviar avaliação");
-    }
-  };
 
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 

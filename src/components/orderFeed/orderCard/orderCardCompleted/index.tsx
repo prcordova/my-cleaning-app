@@ -128,10 +128,10 @@ export const OrderCardCompleted = ({
     }
   };
 
-  const handleRequestHelp = () => {
-    // Implementar a lógica para pedir ajuda ao suporte, como abrir um modal
-    toast("Solicitação de ajuda enviada ao suporte.", { icon: "ℹ️" });
-  };
+  // const handleRequestHelp = () => {
+  //   // Implementar a lógica para pedir ajuda ao suporte, como abrir um modal
+  //   toast("Solicitação de ajuda enviada ao suporte.", { icon: "ℹ️" });
+  // };
 
   const handleSendRating = async () => {
     if (rating == null) {
@@ -238,7 +238,7 @@ export const OrderCardCompleted = ({
           </div>
         )}
 
-        {job.status === "waiting-for-rating" && (
+        {job.status === "completed" && (
           <>
             {diffMinutes > 0 ? (
               <button
@@ -250,22 +250,13 @@ export const OrderCardCompleted = ({
               </button>
             ) : (
               <div className="mt-2 flex flex-col sm:flex-row items-start gap-2">
-                {/* Após expirar prazo, pode pedir ajuda ao suporte */}
-                <button
-                  onClick={handleRequestHelp}
-                  className="flex items-center gap-1 text-purple-600 hover:underline text-sm"
-                >
-                  <FaLifeRing />
-                  Pedir Ajuda
-                </button>
-                {/* Avaliação do trabalho, apenas se ainda não foi avaliado */}
                 {!isRated ? (
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-1">
+                  <div className="flex flex-col gap-1 justify-center mx-auto w-full sm:w-[90%] ">
+                    <div className="flex items-center justify-center mb-4 w-full ">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <FaStar
                           key={star}
-                          className={`cursor-pointer ${
+                          className={`w-[40px] cursor-pointer hover:translate-y-[-5px] ${
                             rating && rating >= star
                               ? "text-yellow-400"
                               : "text-gray-300"
@@ -276,9 +267,10 @@ export const OrderCardCompleted = ({
                     </div>
                     <textarea
                       value={ratingComment}
+                      maxLength={200}
                       onChange={(e) => setRatingComment(e.target.value)}
                       placeholder="Deixe um comentário (opcional)"
-                      className="w-full p-1 border rounded text-sm"
+                      className="w-full p-2 border border-gray-500 rounded text-sm"
                     />
                     <button
                       onClick={handleSendRating}

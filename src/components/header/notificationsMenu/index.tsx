@@ -24,16 +24,21 @@ export const NotificationMenu = ({ userId, token }: NotificationMenuProps) => {
 
   // Carrega notificações iniciais
   useEffect(() => {
-    if (userId && token) {
-      fetch(`${baseUrl}/notifications/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setNotifications(data.notifications || []);
-        });
+    try {
+      if (userId && token) {
+        fetch(`${baseUrl}/notifications/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setNotifications(data.notifications || []);
+          });
+      }
+    } catch (e) {
+      console.error(e);
+      router.push("/login");
     }
   }, [userId, token]);
 
@@ -49,15 +54,20 @@ export const NotificationMenu = ({ userId, token }: NotificationMenuProps) => {
 
   const handleClearAll = async () => {
     setNotifications([]);
-    if (!userId || !token) return;
+    try {
+      if (!userId || !token) return;
 
-    await fetch(`${baseUrl}/notifications/${userId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    setShowMenu(false);
+      await fetch(`${baseUrl}/notifications/${userId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setShowMenu(false);
+    } catch (e) {
+      console.error(e);
+      router.push("/login");
+    }
   };
 
   const handleNotificationClick = (notif: Notification) => {

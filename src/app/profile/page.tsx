@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
 import { baseUrl } from "@/services/api";
+
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -23,14 +24,13 @@ const Profile = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!authUser) {
-      router.push("/dashboard");
-      return;
-    }
-
     const fetchUser = async () => {
+      if (!authUser || !authUser._id) {
+        return;
+      }
+
       try {
-        const res = await fetch(`${baseUrl}/users/${user._id}`, {
+        const res = await fetch(`${baseUrl}/users/${authUser._id}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -51,15 +51,13 @@ const Profile = () => {
     fetchUser();
   }, [authUser, token, router]);
 
-  useEffect(() => {
-    setUser(authUser);
-  }, [authUser]);
-
   const handleEditProfile = () => {
     setIsEditing(true);
   };
 
   const handleSaveProfile = async () => {
+    if (!user) return;
+
     const formData = new FormData();
     if (avatar) {
       formData.append("avatar", avatar);
@@ -118,13 +116,10 @@ const Profile = () => {
             <Grid item xs={12} sm={4}>
               <Avatar
                 alt={user.fullName}
-                src={
-                  user.avatar
-                    ? `/uploads/${user?.avatar}`
-                    : user.workerDetails?.idPhoto
-                }
+                src={`${baseUrl}${user.avatar}`}
                 sx={{ width: 100, height: 100 }}
               />
+
               {isEditing && (
                 <input
                   type="file"
@@ -137,6 +132,13 @@ const Profile = () => {
               <Typography variant="h5" component="div">
                 {user?.fullName}
               </Typography>
+              {user.role === "worker" && (
+                <Typography variant="body2" color="text.secondary">
+                  Avaliação média:{" "}
+                  {user.averageRating ? user.averageRating.toFixed(1) : "N/A"}
+                </Typography>
+              )}
+
               <Typography variant="body2" color="text.secondary">
                 {user?.email}
               </Typography>
@@ -318,7 +320,6 @@ const Profile = () => {
             Estatísticas
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {/* Adicione aqui as estatísticas relevantes */}
             Trabalhos concluídos: 10
           </Typography>
           <Typography variant="body2" color="text.secondary">

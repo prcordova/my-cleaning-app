@@ -266,7 +266,7 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
         </p>
       ) : (
         <>
-          <div className="space-y-4 flex text-center justify-center">
+          <div className="space-y-4 mb-4 flex text-center justify-center">
             <div>{`${filteredJobs.length} trabalho${
               filteredJobs.length > 1 ? "s" : ""
             } encontrado${filteredJobs.length > 1 ? "s" : ""}`}</div>
