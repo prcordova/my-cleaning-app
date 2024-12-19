@@ -3,7 +3,7 @@
 import dayjs from "dayjs";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { baseUrl } from "@/services/api";
 import {
   MdLocationOn,
@@ -11,7 +11,21 @@ import {
   MdAttachMoney,
   MdCancel,
 } from "react-icons/md";
-import { FaInfoCircle } from "react-icons/fa";
+import { FaInfoCircle, FaStar } from "react-icons/fa";
+
+interface Rating {
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+interface Worker {
+  _id: string;
+  fullName: string;
+  avatars?: { path: string; uploadedAt: string }[];
+  ratings?: Rating[];
+  averageRating?: number;
+}
 
 interface Job {
   _id: string;
@@ -27,10 +41,7 @@ interface Job {
     city: string;
     state: string;
   };
-  workerId?: {
-    _id: string;
-    fullName: string;
-  };
+  workerId?: Worker; // Agora assumindo que o workerId vem populado com details
   imageUrl?: string;
   cleanedPhoto?: string;
   completedAt?: string;
@@ -48,6 +59,14 @@ export const OrderCardInProgress = ({
 }: OrderCardInProgressProps) => {
   const { token } = useAuthStore();
   const [jobStatus, setJobStatus] = useState(job.status);
+
+  // Cálculo do avatar do trabalhador
+  const workerAvatar =
+    job.workerId?.avatars && job.workerId.avatars.length > 0
+      ? `${baseUrl}/uploads/${
+          job.workerId.avatars[job.workerId.avatars.length - 1].path
+        }`
+      : "/assets/imgs/avatarPlaceholder.jpg";
 
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 
@@ -75,6 +94,41 @@ export const OrderCardInProgress = ({
     }
   };
 
+  // Cálculo de estrelas
+  const averageRating = job.workerId?.averageRating || 0;
+  const maxStars = 5;
+  const starElements = [];
+  for (let i = 1; i <= maxStars; i++) {
+    starElements.push(
+      <FaStar
+        key={i}
+        className={i <= averageRating ? "text-yellow-400" : "text-gray-300"}
+      />
+    );
+  }
+
+  // Comentários recentes
+  const recentComments = job.workerId?.ratings
+    ? [...job.workerId.ratings]
+        .sort((a, b) => {
+          // ordenar por data mais recente primeiro
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+        })
+        .slice(0, 3)
+    : [];
+
+  const workerAvatars = job.workerId?.avatars || [];
+  const latestAvatar =
+    workerAvatars.length > 0
+      ? workerAvatars[workerAvatars.length - 1].path
+      : null;
+
+  const workerAvatarUrl = latestAvatar
+    ? `${baseUrl}/uploads/${latestAvatar}`
+    : "/assets/imgs/avatarPlaceholder.jpg";
+
   return (
     <li className="bg-white p-4 rounded shadow-md hover:bg-gray-50 transition">
       {/* Topo: Imagem e Título */}
@@ -100,7 +154,7 @@ export const OrderCardInProgress = ({
       {/* Informações Extras */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <p className="text-sm text-gray-800">
-          <span className="font-bold">Status:</span> {job.status}
+          <span className="font-bold">Status:</span> {jobStatus}
         </p>
         <p className="text-sm text-gray-800 flex items-center gap-1">
           <MdCalendarToday className="text-gray-600" />
@@ -121,6 +175,50 @@ export const OrderCardInProgress = ({
           </span>
         </p>
       </div>
+
+      <hr className="my-3" />
+
+      {/* Info do Trabalhador */}
+      {job.workerId && (
+        <div className="mt-3">
+          <h4 className="text-lg font-bold mb-2">Trabalhador Asignado:</h4>
+          <div className="flex items-center gap-3">
+            <img
+              src={workerAvatarUrl}
+              alt={job.workerId?.fullName || "Trabalhador"}
+              className="w-16 h-16 rounded-[8px] object-cover border border-green-600"
+            />
+            <div>
+              <p className="font-medium text-gray-800">
+                {job.workerId.fullName}
+              </p>
+              <div className="flex items-center gap-1">
+                {starElements}
+                <span className="text-xs text-gray-500 ml-2">
+                  {averageRating.toFixed(1)} / 5
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Comentários recentes */}
+          {recentComments && recentComments.length > 0 && (
+            <div className="mt-3">
+              <h5 className="text-sm font-semibold mb-1">
+                Comentários Recentes:
+              </h5>
+              <ul className="space-y-1">
+                {recentComments.map((comment, idx) => (
+                  <li key={idx} className="text-xs text-gray-600 italic">
+                    {comment.comment}
+                    {dayjs(comment.createdAt).format("DD/MM/YYYY")}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Botões de Ação */}
       <div className="mt-4 flex justify-end gap-2">
