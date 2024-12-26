@@ -77,7 +77,9 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
       setWorkerName(updatedJob.workerName);
 
       toast.success("Trabalho aceito com sucesso!");
-      onAccept && onAccept(job._id);
+      if (onAccept) {
+        onAccept(job._id);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao aceitar trabalho");
     }
@@ -104,7 +106,9 @@ export const JobCard = ({ job, onAccept, onCancel }: JobCardProps) => {
       setWorkerName(updatedJob.workerName);
 
       toast.success("Trabalho cancelado com sucesso!");
-      onCancel && onCancel(job._id);
+      if (onCancel) {
+        onCancel(job._id);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao cancelar trabalho");
     }
