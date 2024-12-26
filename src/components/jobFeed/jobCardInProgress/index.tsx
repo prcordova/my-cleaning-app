@@ -58,7 +58,7 @@ export const JobCardInProgress = ({
   const [cleanedPhotoFile, setCleanedPhotoFile] = useState<File | null>(null);
   const [showImages, setShowImages] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [workerName, setWorkerName] = useState(job.workerName);
+  const [workerName] = useState(job.workerName);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -114,7 +114,9 @@ export const JobCardInProgress = ({
       setJobStatus(updatedJob.status);
 
       toast.success("Trabalho concluído com sucesso!");
-      onJobUpdate && onJobUpdate(updatedJob);
+      if (onJobUpdate) {
+        onJobUpdate(updatedJob);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao concluir trabalho");
     }
@@ -139,7 +141,9 @@ export const JobCardInProgress = ({
       setJobStatus(updatedJob.status);
 
       toast.success("Trabalho cancelado com sucesso!");
-      onCancel && onCancel(job._id);
+      if (onCancel) {
+        onCancel(job._id);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao cancelar trabalho");
     }

@@ -35,7 +35,6 @@ interface JobCardDisputeProps {
 }
 
 export const JobCardDispute = ({ job }: JobCardDisputeProps) => {
-  const { token, user } = useAuthStore();
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 
   return (
