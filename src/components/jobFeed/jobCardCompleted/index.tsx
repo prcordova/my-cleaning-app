@@ -2,10 +2,8 @@
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { toast } from "react-hot-toast";
-import { useAuthStore } from "@/store/authStore";
+
 import { useState, useEffect } from "react";
-import { baseUrl } from "@/services/api";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
 import { FaInfoCircle, FaImage, FaUser } from "react-icons/fa";
 
@@ -43,14 +41,12 @@ interface JobCardCompletedProps {
 }
 
 export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
-  const { token, user } = useAuthStore();
   const [showImages, setShowImages] = useState(false);
-  const [rating, setRating] = useState<number | null>(null);
-  const [ratingComment, setRatingComment] = useState("");
   const [isRated, setIsRated] = useState<boolean>(job.isRated || false);
 
   useEffect(() => {
     setIsRated(job.isRated || false);
+    console.log("isRated", isRated);
   }, [job.isRated]);
 
   // Mensagem de tempo restante para liberar pagamento

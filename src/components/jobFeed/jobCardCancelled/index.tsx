@@ -1,7 +1,6 @@
 // components/jobFeed/jobCard/JobCardCancelled.tsx
 
 import dayjs from "dayjs";
-import { useAuthStore } from "@/store/authStore";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
 import { FaUser, FaInfoCircle } from "react-icons/fa";
 
@@ -35,7 +34,6 @@ interface JobCardCancelledProps {
 }
 
 export const JobCardCancelled = ({ job }: JobCardCancelledProps) => {
-  const { token, user } = useAuthStore();
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 
   return (
