@@ -69,7 +69,9 @@ export const OrderCardPending = ({
 
       const updatedJob: Job = await res.json();
       toast.success("Pedido cancelado com sucesso!");
-      onJobUpdate && onJobUpdate(updatedJob);
+      if (onJobUpdate) {
+        onJobUpdate(updatedJob);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao cancelar pedido");
     }
@@ -94,7 +96,9 @@ export const OrderCardPending = ({
       const updatedJob: Job = await res.json();
       toast.success("Pedido editado com sucesso!");
       setIsEditing(false);
-      onJobUpdate && onJobUpdate(updatedJob);
+      if (onJobUpdate) {
+        onJobUpdate(updatedJob);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao editar pedido");
     }

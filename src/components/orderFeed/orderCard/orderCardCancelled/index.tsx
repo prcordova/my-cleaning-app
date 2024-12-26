@@ -1,10 +1,8 @@
 // components/orderFeed/orderCard/OrderCardCancelled.tsx
 
 import dayjs from "dayjs";
-import { useAuthStore } from "@/store/authStore";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
 import { FaInfoCircle } from "react-icons/fa";
-import { useState } from "react";
 
 interface Job {
   _id: string;
@@ -35,13 +33,7 @@ interface OrderCardCancelledProps {
   onJobUpdate?: (updatedJob: Job) => void;
 }
 
-export const OrderCardCancelled = ({
-  job,
-  onJobUpdate,
-}: OrderCardCancelledProps) => {
-  const { token } = useAuthStore();
-  const [jobStatus, setJobStatus] = useState(job.status);
-
+export const OrderCardCancelled = ({ job }: OrderCardCancelledProps) => {
   const displayImage = job.imageUrl || "/assets/imgs/homemLimpando.jpg";
 
   return (

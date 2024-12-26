@@ -80,7 +80,9 @@ export const OrderCardInProgress = ({
       const updatedJob: Job = await res.json();
       setJobStatus(updatedJob.status);
       toast.success("Pedido cancelado com sucesso!");
-      onJobUpdate && onJobUpdate(updatedJob);
+      if (onJobUpdate) {
+        onJobUpdate(updatedJob);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao cancelar pedido");
     }

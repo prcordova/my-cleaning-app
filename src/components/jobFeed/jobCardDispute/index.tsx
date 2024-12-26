@@ -1,7 +1,6 @@
 // components/jobFeed/jobCard/JobCardDispute.tsx
 
 import dayjs from "dayjs";
-import { useAuthStore } from "@/store/authStore";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
 import { FaUser, FaInfoCircle } from "react-icons/fa";
 

@@ -39,7 +39,7 @@ interface JobCardPendingProps {
 }
 
 export const JobCardPending = ({ job, onJobUpdate }: JobCardPendingProps) => {
-  const { token, user } = useAuthStore();
+  const { token } = useAuthStore();
   const [jobStatus, setJobStatus] = useState(job.status);
 
   useEffect(() => {
@@ -70,7 +70,9 @@ export const JobCardPending = ({ job, onJobUpdate }: JobCardPendingProps) => {
       setJobStatus(updatedJob.status);
 
       toast.success("Trabalho aceito com sucesso!");
-      onJobUpdate && onJobUpdate(updatedJob);
+      if (onJobUpdate) {
+        onJobUpdate(updatedJob);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao aceitar trabalho");
     }
@@ -140,7 +142,6 @@ export const JobCardPending = ({ job, onJobUpdate }: JobCardPendingProps) => {
           <button
             onClick={handleAccept}
             className="bg-primary text-white px-4 py-2 rounded-lg text-sm hover:bg-primary-dark flex items-center gap-1"
-            disabled={jobStatus === "cancelled-by-client"}
           >
             <FaCheck /> Aceitar Trabalho
           </button>

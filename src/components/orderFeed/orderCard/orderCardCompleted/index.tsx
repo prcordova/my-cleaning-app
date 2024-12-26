@@ -11,7 +11,6 @@ import {
   FaInfoCircle,
   FaImage,
   FaBalanceScale,
-  FaLifeRing,
   FaStar,
   FaCheck,
 } from "react-icons/fa";
@@ -96,7 +95,9 @@ export const OrderCardCompleted = ({
 
       const updatedJob: Job = await res.json();
       toast.success("Conclusão do trabalho aceita com sucesso!");
-      onJobUpdate && onJobUpdate(updatedJob);
+      if (onJobUpdate) {
+        onJobUpdate(updatedJob);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao aceitar conclusão do trabalho");
     }
@@ -122,7 +123,9 @@ export const OrderCardCompleted = ({
       toast.success(
         "Disputa aberta com sucesso! O suporte foi notificado e irá analisar."
       );
-      onJobUpdate && onJobUpdate(updatedJob);
+      if (onJobUpdate) {
+        onJobUpdate(updatedJob);
+      }
     } catch (error: any) {
       toast.error(error.message || "Erro ao abrir disputa");
     }
