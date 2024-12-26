@@ -123,7 +123,11 @@ const Register = () => {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     try {
-      userSchema.shape[name as keyof typeof userSchema.shape].parse(value);
+      const fieldSchema =
+        userSchema._def.schema.shape[
+          name as keyof typeof userSchema._def.schema.shape
+        ];
+      fieldSchema.parse(value);
       setErrors((prev) => ({ ...prev, [name]: "" }));
     } catch (err: any) {
       setErrors((prev) => ({
@@ -132,7 +136,6 @@ const Register = () => {
       }));
     }
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setDocumentFile(e.target.files[0]);
@@ -272,7 +275,9 @@ const Register = () => {
               <FormLabel component="legend">Tipo de usuário</FormLabel>
               <RadioGroup
                 value={clientType ? "client" : "worker"}
-                onChange={(e) => setClientType(e.target.value === "client")}
+                onChange={(e) =>
+                  setClientType(e.target.value as "client" | "worker")
+                }
               >
                 <FormControlLabel
                   value="client"
