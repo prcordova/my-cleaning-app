@@ -1,6 +1,4 @@
 export const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-// export const baseUrl = "https://localhost:8080"
-// export const baseUrl = "https://limpfybackend-ucdppc9d.b4a.run";
 
 export const login = async (email: string, password: string) => {
   const res = await fetch(`${baseUrl}/auth/login`, {
