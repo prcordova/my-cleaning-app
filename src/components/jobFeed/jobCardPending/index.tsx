@@ -14,7 +14,7 @@ interface Job {
   description: string;
   status: string;
   createdAt: string;
-  price: number;
+  price?: number;
   location: {
     cep: string;
     street: string;
