@@ -6,7 +6,7 @@ import Link from "next/link";
 import { baseUrl } from "@/services/api";
 import { OrderCardPending } from "./orderCard/orderCardPending";
 import { OrderCardInProgress } from "./orderCard/orderCardInProgress";
-import { OrderCardCompleted } from "./orderCard/orderCardCompleted/index";
+import { OrderCardCompleted } from "./orderCard/orderCardCompleted";
 import { OrderCardCancelled } from "./orderCard/orderCardCancelled";
 import { OrderCardDispute } from "./orderCard/orderCardDispute";
 

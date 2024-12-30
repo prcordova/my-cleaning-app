@@ -1,9 +1,10 @@
+// app/layout.tsx (continua sem "use client")
 import { ReactNode } from "react";
-import "../styles/globals.css";
-import { Header } from "@/components/header/index";
-import { Footer } from "@/components/footer/index";
-import "../utils/chart";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
+import "../styles/globals.css";
+import "../utils/chart";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
@@ -11,7 +12,7 @@ export const metadata = {
   description: "Serviço rápido e moderno para limpezas personalizadas",
 };
 
-const Layout = ({ children }: { children: ReactNode }) => {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-gray-100 text-gray-900">
@@ -24,6 +25,4 @@ const Layout = ({ children }: { children: ReactNode }) => {
       </body>
     </html>
   );
-};
-
-export default Layout;
+}

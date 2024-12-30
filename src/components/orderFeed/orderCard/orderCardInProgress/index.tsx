@@ -199,7 +199,7 @@ export const OrderCardInProgress = ({
           <div className="flex items-center gap-4">
             <img
               src={workerAvatarUrl}
-              alt={job.workerId?.fullName || "Trabalhador"}
+              alt={job.workerId.fullName || "Trabalhador"}
               className="w-16 h-16 rounded-[8px] object-cover border border-green-600"
             />
             <div className="flex flex-col">

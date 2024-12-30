@@ -159,9 +159,7 @@ export const OrderCardPending = ({
               </p>
             </div>
           </div>
-
           <hr className="my-3" />
-
           {/* Informações Extras */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <p className="text-sm text-gray-800">
