@@ -116,7 +116,7 @@ const Profile = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={4}>
               <Avatar
-                alt={user?.fullName}
+                alt={user?.fullName || "Usuário"}
                 src={user?.avatar ? `${baseUrl}${user.avatar}` : ""}
                 sx={{ width: 100, height: 100 }}
               />
@@ -131,174 +131,171 @@ const Profile = () => {
             </Grid>
             <Grid item xs={12} sm={8}>
               <Typography variant="h5" component="div">
-                {user?.fullName}
+                {user?.fullName || "Usuário não identificado"}
               </Typography>
-              {user.role === "worker" && (
+              {user?.role === "worker" && (
                 <Typography variant="body2" color="text.secondary">
-                  Avaliação média:{" "}
-                  {user.averageRating ? user.averageRating.toFixed(1) : "N/A"}
+                  Avaliação média: {user?.averageRating?.toFixed(1) || "N/A"}
                 </Typography>
               )}
 
               <Typography variant="body2" color="text.secondary">
-                {user?.email}
+                {user?.email || "Email não informado"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                CPF: {user?.cpf}
+                CPF: {user?.cpf || "Não informado"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Telefone: {user?.phone}
+                Telefone: {user?.phone || "Não informado"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Data de Nascimento:{" "}
-                {new Date(user?.birthDate).toLocaleDateString()}
+                {user?.birthDate
+                  ? new Date(user.birthDate).toLocaleDateString()
+                  : "Não informado"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Status: {user?.status}
+                Status: {user?.status || "Não informado"}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Role: {user?.role}
+                Role: {user?.role || "Não definido"}
               </Typography>
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
-      <Card className="mb-4">
-        <CardContent>
-          <Typography variant="h6" component="div" className="mb-2">
-            Endereço
-          </Typography>
-          {isEditing ? (
-            <>
-              <TextField
-                label="CEP"
-                value={user?.address?.cep}
-                onChange={(e) =>
-                  setUser({
-                    ...user,
-                    address: { ...user.address, cep: e.target.value },
-                  })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Rua"
-                value={user.address?.street}
-                onChange={(e) =>
-                  setUser({
-                    ...user,
-                    address: { ...user.address, street: e.target.value },
-                  })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Número"
-                value={user.address?.number}
-                onChange={(e) =>
-                  setUser({
-                    ...user,
-                    address: { ...user.address, number: e.target.value },
-                  })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Cidade"
-                value={user.address?.city}
-                onChange={(e) =>
-                  setUser({
-                    ...user,
-                    address: { ...user.address, city: e.target.value },
-                  })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Estado"
-                value={user.address?.state}
-                onChange={(e) =>
-                  setUser({
-                    ...user,
-                    address: { ...user.address, state: e.target.value },
-                  })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Complemento"
-                value={user.address?.complement}
-                onChange={(e) =>
-                  setUser({
-                    ...user,
-                    address: { ...user.address, complement: e.target.value },
-                  })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Referência"
-                value={user.address.reference}
-                onChange={(e) =>
-                  setUser({
-                    ...user,
-                    address: { ...user.address, reference: e.target.value },
-                  })
-                }
-                fullWidth
-                margin="normal"
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSaveProfile}
-                className="mt-2"
-              >
-                Salvar
-              </Button>
-            </>
-          ) : (
-            <>
-              <Typography variant="body2" color="text.secondary">
-                CEP: {user.address?.cep}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Rua: {user.address?.street}, Número: {user.address?.number}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Cidade: {user.address?.city}, Estado: {user.address?.state}
-              </Typography>
-              {user.address?.complement && (
-                <Typography variant="body2" color="text.secondary">
-                  Complemento: {user.address?.complement}
-                </Typography>
-              )}
-              {user.address?.reference && (
-                <Typography variant="body2" color="text.secondary">
-                  Referência: {user.address?.reference}
-                </Typography>
-              )}
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleEditProfile}
-                className="mt-2"
-              >
-                Editar Perfil
-              </Button>
-            </>
-          )}
-        </CardContent>
-      </Card>
+      {user?.address && (
+        <Card className="mb-4">
+          <CardContent>
+            <Typography variant="h6" component="div" className="mb-2">
+              Endereço
+            </Typography>
+            {isEditing ? (
+              <>
+                <TextField
+                  label="CEP"
+                  value={user.address?.cep || ""}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      address: { ...user.address, cep: e.target.value },
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Rua"
+                  value={user.address?.street || ""}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      address: { ...user.address, street: e.target.value },
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Número"
+                  value={user.address?.number || ""}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      address: { ...user.address, number: e.target.value },
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Cidade"
+                  value={user.address?.city || ""}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      address: { ...user.address, city: e.target.value },
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Estado"
+                  value={user.address?.state || ""}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      address: { ...user.address, state: e.target.value },
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                />
 
-      {user.role === "worker" && (
+                <TextField
+                  label="Complemento"
+                  value={user.address?.complement}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      address: { ...user.address, complement: e.target.value },
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Referência"
+                  value={user.address.reference}
+                  onChange={(e) =>
+                    setUser({
+                      ...user,
+                      address: { ...user.address, reference: e.target.value },
+                    })
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSaveProfile}
+                  className="mt-2"
+                >
+                  Salvar
+                </Button>
+              </>
+            ) : (
+              <>
+                <Typography variant="body2" color="text.secondary">
+                  CEP: {user.address?.cep || "Não informado"}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Rua: {user.address?.street || ""}, Número:{" "}
+                  {user.address?.number || ""}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Cidade: {user.address?.city || ""}, Estado:{" "}
+                  {user.address?.state || ""}
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleEditProfile}
+                  className="mt-2"
+                >
+                  Editar Perfil
+                </Button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {user?.role === "worker" && (
         <Card className="mb-4">
           <CardContent>
             <Typography variant="h6" component="div" className="mb-2">
@@ -306,7 +303,9 @@ const Profile = () => {
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Data de Nascimento:{" "}
-              {new Date(user?.birthDate).toLocaleDateString()}
+              {user?.birthDate
+                ? new Date(user.birthDate).toLocaleDateString()
+                : "Não informado"}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Empresa Associada: {user?.companyId || "Não informada"}
@@ -344,11 +343,11 @@ const Profile = () => {
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Aceitou os Termos de Uso:{" "}
-            {user.hasAcceptedTerms ? "Sim" : "Pendente"}
+            {user?.hasAcceptedTerms ? "Sim" : "Pendente"}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Data de Aceitação:{" "}
-            {user.termsAcceptedDate
+            {user?.termsAcceptedDate
               ? new Date(user.termsAcceptedDate).toLocaleDateString()
               : "N/A"}
           </Typography>
