@@ -294,7 +294,7 @@ export default function CreateJob() {
                   <TextField
                     label="CEP"
                     fullWidth
-                    value={location.cep}
+                    value={location?.cep}
                     onChange={(e) =>
                       setLocation({ ...location, cep: e.target.value })
                     }
@@ -304,7 +304,7 @@ export default function CreateJob() {
                   <TextField
                     label="Rua"
                     fullWidth
-                    value={location.street}
+                    value={location?.street}
                     onChange={(e) =>
                       setLocation({ ...location, street: e.target.value })
                     }
@@ -314,7 +314,7 @@ export default function CreateJob() {
                   <TextField
                     label="Cidade"
                     fullWidth
-                    value={location.city}
+                    value={location?.city}
                     onChange={(e) =>
                       setLocation({ ...location, city: e.target.value })
                     }
@@ -324,7 +324,7 @@ export default function CreateJob() {
                   <TextField
                     label="Estado"
                     fullWidth
-                    value={location.state}
+                    value={location?.state}
                     onChange={(e) =>
                       setLocation({ ...location, state: e.target.value })
                     }
@@ -334,7 +334,7 @@ export default function CreateJob() {
                   <TextField
                     label="Número"
                     fullWidth
-                    value={location.number}
+                    value={location?.number}
                     onChange={(e) =>
                       setLocation({ ...location, number: e.target.value })
                     }
@@ -344,7 +344,7 @@ export default function CreateJob() {
                   <TextField
                     label="Complemento"
                     fullWidth
-                    value={location.complement}
+                    value={location?.complement}
                     onChange={(e) =>
                       setLocation({ ...location, complement: e.target.value })
                     }
@@ -354,7 +354,7 @@ export default function CreateJob() {
                   <TextField
                     label="Referência"
                     fullWidth
-                    value={location.reference}
+                    value={location?.reference}
                     onChange={(e) =>
                       setLocation({ ...location, reference: e.target.value })
                     }
