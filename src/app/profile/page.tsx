@@ -117,7 +117,7 @@ const Profile = () => {
             <Grid item xs={12} sm={4}>
               <Avatar
                 alt={user?.fullName}
-                src={`${baseUrl}${user.avatar}`}
+                src={user?.avatar ? `${baseUrl}${user.avatar}` : ""}
                 sx={{ width: 100, height: 100 }}
               />
 
