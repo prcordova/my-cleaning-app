@@ -8,7 +8,7 @@ import { JobCardInProgress } from "./jobCardInProgress";
 import { JobCardCompleted } from "./jobCardCompleted";
 import { JobCardCancelled } from "./jobCardCancelled";
 import { JobCardDispute } from "./jobCardDispute";
-
+import { useRouter } from "next/navigation";
 interface Job {
   _id: string;
   title: string;
@@ -57,6 +57,8 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const { token } = useAuthStore();
 
+  const router = useRouter();
+
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -70,6 +72,11 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
             Authorization: `Bearer ${token}`,
           },
         });
+
+        if (res.status === 401) {
+          router.push("/login");
+          throw new Error("Sessão expirada, faça login novamente.");
+        }
 
         if (!res.ok) {
           throw new Error("Erro ao buscar trabalhos.");

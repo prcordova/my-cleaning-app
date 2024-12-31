@@ -37,6 +37,11 @@ const Profile = () => {
           },
         });
 
+        if (res.status === 401) {
+          router.push("/login");
+          throw new Error("Sessão expirada, faça login novamente.");
+        }
+
         if (!res.ok) {
           throw new Error("Erro ao buscar informações do usuário.");
         }
@@ -88,10 +93,6 @@ const Profile = () => {
       console.error(err.message || "Erro ao atualizar o perfil.");
     }
   };
-
-  if (!user) {
-    return <p>Carregando...</p>;
-  }
 
   return (
     <div className="container mx-auto mt-8">
