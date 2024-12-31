@@ -96,7 +96,7 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto mt-8">
-      {!user.hasAcceptedTerms && (
+      {!user?.hasAcceptedTerms && (
         <Alert severity="warning" className="mb-4" icon={<WarningIcon />}>
           <AlertTitle>Atenção</AlertTitle>
           Você precisa aceitar os termos de uso para poder utilizar os serviços.
