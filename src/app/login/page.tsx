@@ -47,43 +47,46 @@ const Login = () => {
           Logar{" "}
         </h2>
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full p-2 mb-3 border rounded"
-          value={email}
-          autoComplete="email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          autoComplete="password"
-          type="password"
-          placeholder="Senha"
-          className="w-full p-2 mb-3 border rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <form>
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-2 mb-3 border rounded"
+            value={email}
+            autoComplete="email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            autoComplete="password"
+            type="password"
+            placeholder="Senha"
+            className="w-full p-2 mb-3 border rounded"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        {loading ? (
-          <div className="flex justify-center flex-col items-center">
-            <div className="flex items-center flex-col">
-              <CircularProgress
-                size={24}
-                className="mt-4"
-                style={{ color: "#3B82F6" }}
-              />
+          {loading ? (
+            <div className="flex justify-center flex-col items-center">
+              <div className="flex items-center flex-col">
+                <CircularProgress
+                  size={24}
+                  className="mt-4"
+                  style={{ color: "#3B82F6" }}
+                />
+              </div>
+              <p className=" my-2 ml-2">Entrando...</p>
             </div>
-            <p className=" my-2 ml-2">Entrando...</p>
-          </div>
-        ) : (
-          <button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full py-2 bg-primary text-white rounded hover:bg-secondary"
-          >
-            Entrar
-          </button>
-        )}
+          ) : (
+            <button
+              type="submit"
+              onClick={handleLogin}
+              disabled={loading}
+              className="w-full py-2 bg-primary text-white rounded hover:bg-secondary"
+            >
+              Entrar
+            </button>
+          )}
+        </form>
 
         <div className="mt-4 text-center">
           <p>
