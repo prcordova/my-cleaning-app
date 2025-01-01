@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
 import { baseUrl } from "@/services/api";
+import { CircularProgress } from "@mui/material";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +13,10 @@ const Login = () => {
   const router = useRouter();
   const { setAuth } = useAuthStore();
 
+  const [loading, setLoading] = useState(false);
+
   const handleLogin = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
@@ -26,10 +30,12 @@ const Login = () => {
 
       const data = await res.json();
       setAuth(data);
+      setLoading(false);
       console.log(data);
       toast.success("Login realizado com sucesso!");
       router.push("/");
     } catch (err: any) {
+      setLoading(false);
       toast.error(err.message || "Erro ao realizar login.");
     }
   };
@@ -58,12 +64,26 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button
-          onClick={handleLogin}
-          className="w-full py-2 bg-primary text-white rounded hover:bg-secondary"
-        >
-          Entrar
-        </button>
+        {loading ? (
+          <div className="flex justify-center flex-col items-center">
+            <div className="flex items-center flex-col">
+              <CircularProgress
+                size={24}
+                className="mt-4"
+                style={{ color: "#3B82F6" }}
+              />
+            </div>
+            <p className=" my-2 ml-2">Entrando...</p>
+          </div>
+        ) : (
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full py-2 bg-primary text-white rounded hover:bg-secondary"
+          >
+            Entrar
+          </button>
+        )}
 
         <div className="mt-4 text-center">
           <p>
@@ -77,25 +97,16 @@ const Login = () => {
           </p>
         </div>
 
-        <hr className="my-4" />
-
-        <div className="text-center">
-          <p>Deseja trabalhar conosco?</p>
-          <div className="flex justify-center gap-4 mt-2">
+        {/* <div className="mt-4 text-center">
+          <p>
             <button
-              onClick={() => router.push("/register")}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => router.push("/forgot-password")}
+              className="text-secondary hover:underline"
             >
-              Trabalhe com a Limpfy
+              Esqueceu a senha?
             </button>
-            <button
-              onClick={() => router.push("/register/team")}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              Empresas
-            </button>
-          </div>
-        </div>
+          </p>
+        </div> */}
       </div>
     </div>
   );

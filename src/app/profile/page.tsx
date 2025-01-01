@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
 import { baseUrl } from "@/services/api";
+import { CircularProgress } from "@mui/material";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
@@ -94,6 +95,14 @@ const Profile = () => {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="container mx-auto mt-8 flex justify-center">
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto mt-8">
       {!user?.hasAcceptedTerms && (
@@ -120,6 +129,9 @@ const Profile = () => {
                 src={user?.avatar ? `${baseUrl}${user.avatar}` : ""}
                 sx={{ width: 100, height: 100 }}
               />
+              <Button variant="contained" onClick={handleEditProfile}>
+                Editar
+              </Button>
 
               {isEditing && (
                 <input

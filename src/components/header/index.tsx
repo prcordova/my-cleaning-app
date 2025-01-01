@@ -3,10 +3,11 @@ import React from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BuildIcon from "@mui/icons-material/Build"; // Ícone para "Trabalhar"
 import ListAltIcon from "@mui/icons-material/ListAlt"; // Ícone para "Meus Pedidos"
 import { NotificationMenu } from "./notificationsMenu";
+import { Avatar } from "@mui/material";
+import { baseUrl } from "@/services/api";
 
 // Classe utilitária para ícones: largura e altura ~20px
 const iconClass = "w-5 h-5";
@@ -22,6 +23,7 @@ export const Header = () => {
 
   // Extrai apenas o primeiro nome do usuário, caso exista
   const firstName = user?.fullName ? user.fullName.split(" ")[0] : "";
+  const avatarImage = user?.avatar ? `${baseUrl}${user.avatar}` : "";
 
   return (
     <header className="bg-primary text-white p-3 sm:p-4 shadow-md relative">
@@ -67,7 +69,11 @@ export const Header = () => {
               href="/profile"
               className="flex items-center hover:underline gap-1"
             >
-              <AccountCircleIcon fontSize="inherit" className={iconClass} />
+              <Avatar
+                alt={user?.fullName || "Usuário"}
+                src={avatarImage}
+                sx={{ width: 25, height: 25 }}
+              />
             </Link>
           )}
 

@@ -12,6 +12,7 @@ interface Address {
 }
 
 interface User {
+  avatar?: string;
   _id: string; // 🔥 Agora _id é obrigatório
   fullName: string;
   email: string;
