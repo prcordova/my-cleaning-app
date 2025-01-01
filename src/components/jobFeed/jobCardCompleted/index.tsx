@@ -45,6 +45,7 @@ export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
 
   useEffect(() => {
     setIsRated(job.isRated || false);
+    console.log("isRated", isRated);
   }, [job.isRated]);
 
   let timeMessage = "";
