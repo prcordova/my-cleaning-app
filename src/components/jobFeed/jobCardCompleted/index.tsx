@@ -6,6 +6,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useState, useEffect } from "react";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
 import { FaInfoCircle, FaImage, FaUser } from "react-icons/fa";
+import { baseUrl } from "@/services/api";
 
 dayjs.extend(relativeTime);
 
@@ -139,7 +140,7 @@ export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
         {showImages && job.cleanedPhoto && (
           <div className="mt-2">
             <img
-              src={`/${job.cleanedPhoto}`}
+              src={`${baseUrl}${job.cleanedPhoto}`}
               alt="Área limpa"
               className="rounded w-full max-w-[200px] h-auto"
             />
