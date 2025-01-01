@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/contexts/ThemeProvider";
 import "../styles/globals.css";
 import "../utils/chart";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/react"
 
 export const metadata = {
   title: "Cleanup Service",
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ThemeProvider>
           <Toaster position="top-center" />
           <Header />
-          <main className="container mx-auto p-6">{children}</main>
+          <main className="container mx-auto p-6">{children}   <Analytics /></main>
           <Footer />
         </ThemeProvider>
       </body>
