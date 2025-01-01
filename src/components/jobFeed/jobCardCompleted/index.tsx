@@ -1,9 +1,11 @@
+// components/jobFeed/jobCard/JobCardCompleted.tsx
+
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
 import { useState, useEffect } from "react";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
-import { FaInfoCircle, FaImage, FaUser, FaTimes } from "react-icons/fa";
+import { FaInfoCircle, FaImage, FaUser } from "react-icons/fa";
 import { baseUrl } from "@/services/api";
 
 dayjs.extend(relativeTime);
@@ -29,9 +31,9 @@ interface Job {
     fullName: string;
   };
   imageUrl?: string;
-  cleanedPhoto?: string;
-  completedAt?: string;
-  disputeUntil?: string;
+  cleanedPhoto?: string; // Foto final do trabalho concluído
+  completedAt?: string; // Data/hora da conclusão
+  disputeUntil?: string; // Data/hora até quando o cliente pode contestar
 }
 
 interface JobCardCompletedProps {
@@ -40,14 +42,15 @@ interface JobCardCompletedProps {
 }
 
 export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
+  const [showImages, setShowImages] = useState(false);
   const [isRated, setIsRated] = useState<boolean>(job.isRated || false);
-  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     setIsRated(job.isRated || false);
     console.log("isRated", isRated);
   }, [job.isRated]);
 
+  // Mensagem de tempo restante para liberar pagamento
   let timeMessage = "";
   let diffMinutes = 0;
   if (job.status === "waiting-for-rating" && job.disputeUntil) {
@@ -66,6 +69,7 @@ export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
 
   return (
     <li className="bg-white p-4 rounded shadow-md hover:bg-gray-50 transition">
+      {/* Topo: Imagem e Título */}
       <div className="flex flex-col sm:flex-row gap-4 items-start">
         <div className="flex-shrink-0">
           <img
@@ -92,6 +96,7 @@ export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
 
       <hr className="my-3" />
 
+      {/* Informações Extras */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <p className="text-sm text-gray-800">
           <span className="font-bold">Status:</span> {job.status}
@@ -116,6 +121,7 @@ export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
         </p>
       </div>
 
+      {/* Mensagem caso concluído */}
       <div className="mt-3 text-sm text-gray-800">
         <p className="font-bold mb-1">Trabalho concluído!</p>
         {job.status === "waiting-for-rating" && (
@@ -124,33 +130,23 @@ export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
 
         {job.cleanedPhoto && (
           <button
-            onClick={() => setModalVisible(true)}
+            onClick={() => setShowImages((prev) => !prev)}
             className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
           >
             <FaImage />
-            Ver Imagem
+            {showImages ? "Ocultar Imagens" : "Ver Imagens"}
           </button>
         )}
-      </div>
-
-      {/* Modal */}
-      {modalVisible && job.cleanedPhoto && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
-          <div className="relative bg-white rounded-lg shadow-lg p-4 max-w-full max-h-full">
-            <button
-              onClick={() => setModalVisible(false)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-            >
-              <FaTimes size={20} />
-            </button>
+        {showImages && job.cleanedPhoto && (
+          <div className="mt-2">
             <img
               src={`${baseUrl}${job.cleanedPhoto}`}
               alt="Área limpa"
-              className="max-w-full max-h-[80vh] rounded"
+              className="rounded w-full max-w-[200px] h-auto"
             />
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </li>
   );
 };
