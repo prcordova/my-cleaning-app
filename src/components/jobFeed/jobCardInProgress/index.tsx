@@ -128,7 +128,7 @@ export const JobCardInProgress = ({
                 {job.description}
               </p>
             </div>
-            {/* Ícone de Três Pontos Verticais */}
+            {/* Ícone de Três Pontos Verticais... */}
             <DropMenu
               firstOption="Cancelar"
               ref={dropdownRef}
