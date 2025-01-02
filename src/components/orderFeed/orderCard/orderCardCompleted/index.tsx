@@ -234,9 +234,9 @@ export const OrderCardCompleted = ({
         {showImages && job.cleanedPhoto && (
           <div className="mt-2">
             <img
-              src={`/${job.cleanedPhoto}`}
+              src={`${baseUrl}${job.cleanedPhoto}`}
               alt="Área limpa"
-              className="rounded w-full max-w-[200px] h-auto"
+              className="max-w-full max-h-[80vh] rounded"
             />
           </div>
         )}

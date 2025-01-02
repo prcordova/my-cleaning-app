@@ -14,33 +14,9 @@ import {
   FaImage,
   FaEllipsisV,
 } from "react-icons/fa";
+import { Job } from "@/types/job";
 
 dayjs.extend(relativeTime);
-
-interface Job {
-  _id: string;
-  title: string;
-  description: string;
-  status: string;
-  createdAt: string;
-  price?: number;
-  location: {
-    cep: string;
-    street: string;
-    city: string;
-    state: string;
-  };
-  workerId?: string;
-  workerName?: string;
-  clientId?: {
-    _id: string;
-    fullName: string;
-  };
-  imageUrl?: string;
-  cleanedPhoto?: string;
-  completedAt?: string;
-  disputeUntil?: string;
-}
 
 interface JobCardInProgressProps {
   job: Job;

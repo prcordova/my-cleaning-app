@@ -3,31 +3,7 @@
 import dayjs from "dayjs";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
 import { FaUser, FaInfoCircle } from "react-icons/fa";
-
-interface Job {
-  _id: string;
-  title: string;
-  description: string;
-  status: string;
-  createdAt: string;
-  price?: number;
-  location: {
-    cep: string;
-    street: string;
-    city: string;
-    state: string;
-  };
-  workerId?: string;
-  workerName?: string;
-  clientId?: {
-    _id: string;
-    fullName: string;
-  };
-  imageUrl?: string;
-  cleanedPhoto?: string;
-  completedAt?: string;
-  disputeUntil?: string;
-}
+import { Job } from "@/types/job";
 
 interface JobCardDisputeProps {
   job: Job;

@@ -1,38 +1,12 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-
 import { useState, useEffect } from "react";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
-import { FaInfoCircle, FaImage, FaUser, FaTimes } from "react-icons/fa";
+import { FaInfoCircle, FaImage, FaUser } from "react-icons/fa";
 import { baseUrl } from "@/services/api";
+import { Job } from "@/types/job";
 
 dayjs.extend(relativeTime);
-
-interface Job {
-  _id: string;
-  title: string;
-  price?: number;
-  description: string;
-  status: string;
-  createdAt: string;
-  isRated?: boolean;
-  location: {
-    cep: string;
-    street: string;
-    city: string;
-    state: string;
-  };
-  workerId?: string;
-  workerName?: string;
-  clientId?: {
-    _id: string;
-    fullName: string;
-  };
-  imageUrl?: string;
-  cleanedPhoto?: string;
-  completedAt?: string;
-  disputeUntil?: string;
-}
 
 interface JobCardCompletedProps {
   job: Job;
@@ -41,7 +15,7 @@ interface JobCardCompletedProps {
 
 export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
   const [isRated, setIsRated] = useState<boolean>(job.isRated || false);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [showImages, setShowImages] = useState(false);
 
   useEffect(() => {
     setIsRated(job.isRated || false);
@@ -124,31 +98,22 @@ export const JobCardCompleted = ({ job }: JobCardCompletedProps) => {
 
         {job.cleanedPhoto && (
           <button
-            onClick={() => setModalVisible(true)}
+            onClick={() => setShowImages((prev) => !prev)}
             className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
           >
             <FaImage />
-            Ver Imagem
+            {showImages ? "Ocultar Imagens" : "Ver Imagens"}
           </button>
         )}
       </div>
 
-      {/* Modal */}
-      {modalVisible && job.cleanedPhoto && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
-          <div className="relative bg-white rounded-lg shadow-lg p-4 max-w-full max-h-full">
-            <button
-              onClick={() => setModalVisible(false)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-            >
-              <FaTimes size={20} />
-            </button>
-            <img
-              src={`${baseUrl}${job.cleanedPhoto}`}
-              alt="Área limpa"
-              className="max-w-full max-h-[80vh] rounded"
-            />
-          </div>
+      {showImages && job.cleanedPhoto && (
+        <div className="mt-2">
+          <img
+            src={`${baseUrl}${job.cleanedPhoto}`}
+            alt="Área limpa"
+            className="max-w-full max-h-[80vh] rounded"
+          />
         </div>
       )}
     </li>

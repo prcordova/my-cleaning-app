@@ -9,32 +9,8 @@ import { JobCardCompleted } from "./jobCardCompleted";
 import { JobCardCancelled } from "./jobCardCancelled";
 import { JobCardDispute } from "./jobCardDispute";
 import { useRouter } from "next/navigation";
-interface Job {
-  _id: string;
-  title: string;
-  description: string;
-  status: string;
-  createdAt: string;
-  price?: number;
-  isRated?: boolean;
-  location: {
-    cep: string;
-    street: string;
-    city: string;
-    state: string;
-  };
-  workerId?: string;
-  workerName?: string;
-  clientId?: {
-    _id: string;
-    fullName: string;
-  };
-  imageUrl?: string;
-  cleanedPhoto?: string;
-  completedAt?: string;
-  disputeUntil?: string;
-}
-
+import { Job } from "@/types/job";
+import { CircularProgress } from "@mui/material";
 interface FeedProps {
   activeTab: string;
 }
@@ -50,6 +26,8 @@ const statusTabs = [
 ];
 
 export const JobFeed = ({ activeTab }: FeedProps) => {
+  const [loading, setLoading] = useState(false);
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [sortOption, setSortOption] = useState<string>("createdAtDesc");
@@ -61,6 +39,7 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
 
   useEffect(() => {
     const fetchJobs = async () => {
+      setLoading(true);
       try {
         const endpoint =
           activeTab === "my-jobs"
@@ -90,7 +69,9 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
         }
 
         setJobs(data);
+        setLoading(false);
       } catch (err: any) {
+        setLoading(false);
         console.error(err.message || "Erro ao buscar trabalhos.");
       }
     };
@@ -195,6 +176,14 @@ export const JobFeed = ({ activeTab }: FeedProps) => {
 
   // Contagem total
   const totalCount = jobs.length;
+
+  if (loading) {
+    return (
+      <div className="space-y-4  mt-4 flex mb-4 flex text-center justify-center">
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 px-2 sm:px-0">
