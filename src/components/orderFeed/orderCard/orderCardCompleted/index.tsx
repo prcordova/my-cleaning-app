@@ -63,7 +63,7 @@ export const OrderCardCompleted = ({
   // Mensagem de tempo restante para liberar pagamento
   let timeMessage = "";
   let diffMinutes = 0;
-  if (job.status === "completed" && job.disputeUntil) {
+  if (job.status === "waiting-for-rating" && job.disputeUntil) {
     const disputeTime = dayjs(job.disputeUntil);
     const now = dayjs();
     diffMinutes = disputeTime.diff(now, "minute");
@@ -296,7 +296,7 @@ export const OrderCardCompleted = ({
 
       {/* Botões de ação */}
       <div className="mt-4 flex justify-end gap-2">
-        {job.status === "waiting-for-rating" && (
+        {job.status === "waiting-for-client" && (
           <button
             onClick={handleAcceptCompletion}
             className="flex items-center gap-1 bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600"
