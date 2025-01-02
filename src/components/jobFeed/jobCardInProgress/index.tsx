@@ -7,14 +7,9 @@ import { useAuthStore } from "@/store/authStore";
 import { useState, useEffect, useRef } from "react";
 import { baseUrl } from "@/services/api";
 import { MdLocationOn, MdCalendarToday, MdAttachMoney } from "react-icons/md";
-import {
-  FaUser,
-  FaInfoCircle,
-  FaCheck,
-  FaImage,
-  FaEllipsisV,
-} from "react-icons/fa";
+import { FaUser, FaInfoCircle, FaCheck, FaImage } from "react-icons/fa";
 import { Job } from "@/types/job";
+import { DropMenu } from "@/components/DropMenu";
 
 dayjs.extend(relativeTime);
 
@@ -33,7 +28,6 @@ export const JobCardInProgress = ({
   const [jobStatus, setJobStatus] = useState(job.status);
   const [cleanedPhotoFile, setCleanedPhotoFile] = useState<File | null>(null);
   const [showImages, setShowImages] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [workerName] = useState(job.workerName);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -42,26 +36,6 @@ export const JobCardInProgress = ({
   }, [job]);
 
   // Fechar dropdown ao clicar fora
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowDropdown(false);
-      }
-    };
-
-    if (showDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showDropdown]);
 
   const handleCompleteJob = async () => {
     if (!cleanedPhotoFile) {
@@ -155,29 +129,14 @@ export const JobCardInProgress = ({
               </p>
             </div>
             {/* Ícone de Três Pontos Verticais */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setShowDropdown((prev) => !prev)}
-                className="text-gray-600 hover:text-gray-800 focus:outline-none"
-              >
-                <FaEllipsisV />
-              </button>
-              {/* Dropdown Menu */}
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-10">
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      handleCancel();
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                  >
-                    Desistir do Trabalho
-                  </button>
-                  {/* Adicione mais opções aqui conforme necessário */}
-                </div>
-              )}
-            </div>
+            <DropMenu
+              firstOption="Cancelar"
+              ref={dropdownRef}
+              onClick={() => {
+                handleCancel();
+              }}
+              key={job._id}
+            />
           </div>
         </div>
       </div>

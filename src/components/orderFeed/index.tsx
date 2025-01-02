@@ -9,6 +9,7 @@ import { OrderCardInProgress } from "./orderCard/orderCardInProgress";
 import { OrderCardCompleted } from "./orderCard/orderCardCompleted";
 import { OrderCardCancelled } from "./orderCard/orderCardCancelled";
 import { OrderCardDispute } from "./orderCard/orderCardDispute";
+import { CircularProgress } from "@mui/material";
 
 interface Job {
   _id: string;
@@ -48,9 +49,11 @@ export const OrderFeed = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const { token } = useAuthStore();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchJobs = async () => {
+      setLoading(true);
       try {
         const res = await fetch(`${baseUrl}/jobs/client-jobs`, {
           method: "GET",
@@ -66,7 +69,9 @@ export const OrderFeed = () => {
         const data: Job[] = await res.json();
         setJobs(data);
         setFilteredJobs(data);
+        setLoading(false);
       } catch (err: any) {
+        setLoading(false);
         console.error(err.message || "Erro ao buscar trabalhos.");
       }
     };
@@ -176,6 +181,14 @@ export const OrderFeed = () => {
   }, {});
 
   const totalCount = jobs.length;
+
+  if (loading) {
+    return (
+      <div className="space-y-4  mt-4 flex mb-4 flex text-center justify-center">
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 px-2 sm:px-0">
