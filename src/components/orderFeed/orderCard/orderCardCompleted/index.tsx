@@ -63,7 +63,7 @@ export const OrderCardCompleted = ({
   // Mensagem de tempo restante para liberar pagamento
   let timeMessage = "";
   let diffMinutes = 0;
-  if (job.status === "waiting-for-rating" && job.disputeUntil) {
+  if (job.status === "completed" && job.disputeUntil) {
     const disputeTime = dayjs(job.disputeUntil);
     const now = dayjs();
     diffMinutes = disputeTime.diff(now, "minute");
